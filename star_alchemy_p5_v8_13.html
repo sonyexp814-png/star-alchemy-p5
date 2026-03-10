@@ -2170,5 +2170,220 @@ renderCompareCard('compareP1VNext','PLAYER 1',{helio:null,geo:null});
 renderCompareCard('compareP2VNext','PLAYER 2',{helio:null,geo:null});
 
 </script>
+<style>
+  .sa-entry-role{
+    background:#22c7f2 !important;
+    color:#fff !important;
+    font-weight:700 !important;
+    border-radius:8px !important;
+    padding:2px 6px !important;
+  }
+  .sa-conductor-role{
+    background:#3b82f6 !important;
+    color:#fff !important;
+    font-weight:700 !important;
+    border-radius:8px !important;
+    padding:2px 6px !important;
+  }
+  .sa-center-role{
+    background:#ef4444 !important;
+    color:#fff !important;
+    font-weight:700 !important;
+    border-radius:8px !important;
+    padding:2px 6px !important;
+  }
+  .sa-role-compare{
+    margin-top:8px !important;
+    padding:8px 10px !important;
+    border:1px solid rgba(255,255,255,.12) !important;
+    border-radius:10px !important;
+    background:rgba(255,255,255,.03) !important;
+    font-size:12px !important;
+    line-height:1.45 !important;
+  }
+  .sa-role-compare b{
+    color:#fff !important;
+  }
+</style>
+
+<script>
+(function () {
+  function norm(x){
+    return String(x || '')
+      .replace(/\s+/g,' ')
+      .trim()
+      .toUpperCase();
+  }
+
+  function splitChain(text){
+    return String(text || '')
+      .replace(/[◎*•·]/g,' ')
+      .split(/\s*→\s*|\s*-\>\s*|\s+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  function hideOldUi(){
+    const all = Array.from(document.querySelectorAll('div,section,article,p,span,h1,h2,h3,h4,h5,h6,li'));
+    all.forEach(el => {
+      const txt = norm(el.textContent);
+      if (!txt) return;
+
+      if (txt.includes('SKY FLOW')) {
+        const card = el.closest('.card,.panel,.block,.section,div,section,article');
+        if (card) card.style.display = 'none';
+      }
+
+      if (
+        txt === 'CENTER MATCH' ||
+        txt === 'SKY CENTER HIT' ||
+        txt === 'CENTER CONDUCTORS'
+      ) {
+        const row = el.closest('.row,.line,.item,.stat,div,p,li');
+        if (row) row.style.display = 'none';
+        else el.style.display = 'none';
+      }
+    });
+  }
+
+  function getSkyResult(){
+    if (window.skyResult && Array.isArray(window.skyResult.chain)) return window.skyResult;
+    if (window.state && window.state.skyResult && Array.isArray(window.state.skyResult.chain)) return window.state.skyResult;
+    if (window.APP && window.APP.skyResult && Array.isArray(window.APP.skyResult.chain)) return window.APP.skyResult;
+
+    const all = Array.from(document.querySelectorAll('*'))
+      .map(el => ({ el, txt: norm(el.textContent) }))
+      .filter(x => x.txt.includes('→'));
+
+    let best = null;
+    for (const x of all) {
+      const txt = x.el.textContent || '';
+      const chain = splitChain(txt);
+      if (chain.length >= 2 && /MO|SU|ME|VE|MA|JU|SA|UR|NE|PL|CHI|PRO|EARTH/i.test(txt)) {
+        if (!best || chain.length > best.chain.length) best = { el: x.el, chain };
+      }
+    }
+    return best ? { chain: best.chain } : null;
+  }
+
+  function markRolesInContainer(container, roles){
+    if (!container || !roles) return { entryHit:false, centerHit:false, conductorHits:[] };
+
+    const entry = roles.entry;
+    const center = roles.center;
+    const conductors = roles.conductors || [];
+
+    const nodes = Array.from(container.querySelectorAll('span,div,b,strong,em,i'))
+      .filter(el => {
+        const t = norm(el.textContent);
+        return /^(MO|SU|ME|VE|MA|JU|SA|UR|NE|PL|CHI|PRO|EARTH)$/.test(t);
+      });
+
+    let entryHit = false;
+    let centerHit = false;
+    const conductorHits = [];
+
+    nodes.forEach(el => {
+      const p = norm(el.textContent);
+      el.classList.remove('sa-entry-role','sa-conductor-role','sa-center-role');
+
+      if (p === entry) {
+        el.classList.add('sa-entry-role');
+        entryHit = true;
+      } else if (p === center) {
+        el.classList.add('sa-center-role');
+        centerHit = true;
+      } else if (conductors.includes(p)) {
+        el.classList.add('sa-conductor-role');
+        if (!conductorHits.includes(p)) conductorHits.push(p);
+      }
+    });
+
+    let box = container.querySelector('.sa-role-compare');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'sa-role-compare';
+      container.appendChild(box);
+    }
+    box.innerHTML =
+      '<b>ROLE COMPARE</b><br>' +
+      'CENTER HIT: ' + (centerHit ? 'YES' : 'NO') + '<br>' +
+      'CONDUCTOR HITS: ' + (conductorHits.length ? conductorHits.join(', ') : 'NONE') + '<br>' +
+      'ENTRY HIT: ' + (entryHit ? 'YES' : 'NO');
+
+    return { entryHit, centerHit, conductorHits };
+  }
+
+  function findPlayerContainers(){
+    const candidates = Array.from(document.querySelectorAll('.card,.panel,.block,.section,div,section,article'));
+    const out = [];
+
+    candidates.forEach(el => {
+      const txt = norm(el.textContent);
+      if (!txt) return;
+      const hasPlanets = /MO|SU|ME|VE|MA|JU|SA|UR|NE|PL|CHI|PRO/.test(txt);
+      const hasArrow = txt.includes('→');
+      const hasPlayerFlavor = txt.includes('HELIO') || txt.includes('GEO') || txt.includes('PLAYER');
+      if (hasPlanets && hasArrow && hasPlayerFlavor) out.push(el);
+    });
+
+    return out.length ? out : candidates.filter(el => {
+      const txt = norm(el.textContent);
+      return txt.includes('→') && /MO|SU|ME|VE|MA|JU|SA|UR|NE|PL|CHI|PRO/.test(txt);
+    }).slice(0, 8);
+  }
+
+  function applySkyRoleOverlayPatch(){
+    hideOldUi();
+
+    const sky = getSkyResult();
+    if (!sky || !Array.isArray(sky.chain) || !sky.chain.length) return;
+
+    const roles = {
+      entry: norm(sky.chain[0]),
+      center: norm(sky.chain[sky.chain.length - 1]),
+      conductors: sky.chain.slice(1, -1).map(norm)
+    };
+
+    const players = findPlayerContainers();
+    players.forEach(c => markRolesInContainer(c, roles));
+  }
+
+  const oldRenderSkyOverlay = window.renderSkyOverlay;
+  window.renderSkyOverlay = function(result, skyResult){
+    const sr = skyResult && Array.isArray(skyResult.chain) ? skyResult : getSkyResult();
+    if (!result || !Array.isArray(result.chain) || !sr || !Array.isArray(sr.chain) || !sr.chain.length) {
+      return typeof oldRenderSkyOverlay === 'function' ? oldRenderSkyOverlay(result, skyResult) : '';
+    }
+
+    const entry = norm(sr.chain[0]);
+    const center = norm(sr.chain[sr.chain.length - 1]);
+    const conductors = sr.chain.slice(1, -1).map(norm);
+
+    return '<div class="sky-overlay">' + result.chain.map(p => {
+      const n = norm(p);
+      let cls = 'sky-item';
+      if (n === entry) cls += ' sa-entry-role';
+      else if (n === center) cls += ' sa-center-role';
+      else if (conductors.includes(n)) cls += ' sa-conductor-role';
+      return '<span class="' + cls + '">' + p + '</span>';
+    }).join(' ') + '</div>';
+  };
+
+  const oldRun = window.runAnalysis;
+  if (typeof oldRun === 'function') {
+    window.runAnalysis = function(){
+      const out = oldRun.apply(this, arguments);
+      setTimeout(applySkyRoleOverlayPatch, 50);
+      return out;
+    };
+  }
+
+  window.addEventListener('load', function(){
+    setTimeout(applySkyRoleOverlayPatch, 200);
+    setTimeout(applySkyRoleOverlayPatch, 800);
+  });
+})();
+</script>
 </body>
 </html>
