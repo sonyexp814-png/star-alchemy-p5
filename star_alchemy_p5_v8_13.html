@@ -1,0 +1,2174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Star Alchemy P5 v8.11 sky overlay</title>
+<style>
+:root{
+  --bg:#141A22;
+  --panel:#1A2330;
+  --border:#2A3646;
+  --text:#C8D2DC;
+  --muted:#92A6B8;
+  --soft:#708598;
+
+  --node:#AFC2D3;
+  --nodeStroke:#D7E2EC;
+  --core:#7E68A8;
+  --coreStroke:#DCCAF7;
+  --center:#FF2E2E;
+  --centerStroke:#FFD0D0;
+  --chain:#E6C55A;
+  --sky:#48D8F0;
+  --decl:#B694E8;
+  --link:#617081;
+
+  --label:#D1D8E0;
+  --labelStroke:#0A1118;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1700px;margin:0 auto;padding:18px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+h1,h2,h3,h4{margin:0 0 10px;color:var(--text)}
+textarea{width:100%;min-height:150px;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit}
+button,select{padding:9px 14px;border-radius:12px;border:1px solid #334357;background:#172338;color:var(--text);cursor:pointer;font-weight:700}
+button:hover{filter:brightness(1.08)}
+.badge{background:#0F1722;border:1px solid var(--border);padding:10px 12px;border-radius:12px;font-weight:800}
+.pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0F1722;border:1px solid var(--border);font-size:12px;font-weight:800}
+.muted{color:var(--muted)} .soft{color:var(--soft)} .ok{color:#61D58A} .warn{color:#FFB86B} .small{font-size:13px}
+.list{max-height:220px;overflow:auto;padding-right:4px}
+svg{width:100%;height:760px;background:#0A1118;border-radius:14px}
+label{margin-right:10px;color:var(--muted)}
+.pulse{animation:pulseLine 1.3s ease-in-out infinite}
+@keyframes pulseLine{0%{opacity:.62}50%{opacity:1}100%{opacity:.62}}
+@keyframes pulseRing{0%{opacity:.55;transform:scale(1)}50%{opacity:.95;transform:scale(1.03)}100%{opacity:.55;transform:scale(1)}}
+@keyframes pulseChain{0%{opacity:.76}50%{opacity:1}100%{opacity:.76}}
+.hidden{display:none}
+.modebar{display:flex;gap:10px;flex-wrap:wrap}
+.modebtn.active{outline:2px solid #4c9ed9}
+@media(max-width:1200px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+  #compareView{display:none !important;}
+  .modebar,.pill{display:none !important;}
+  .core-block{margin-top:14px}
+  .hidden-sky{display:none !important;}
+  .compare-block{margin-top:18px}
+
+
+  .graph-struct{
+display:grid;
+grid-template-columns:minmax(900px,3.2fr) minmax(300px,0.75fr);
+gap:16px;
+align-items:start;
+margin-bottom:20px;
+}
+  .struct-sections .section{margin-bottom:12px;padding-top:4px;border-top:1px solid rgba(255,255,255,.06)}
+  .struct-sections .section:first-child{border-top:none;padding-top:0}
+  .sky-compare-box{margin-top:12px}
+  .sky-compare-box label{display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0}
+  .sky-compare-box input[type="checkbox"]{transform:scale(.95)}
+  .pressure-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .pressure-card{padding:10px 12px;border:1px solid #334357;border-radius:12px;background:#0F1722}
+
+
+  .graph-struct{
+display:grid;
+grid-template-columns: minmax(760px,2.4fr) minmax(340px,0.9fr);
+gap:20px;
+align-items:start;
+margin-bottom:20px;
+}
+  .struct-sections .section{margin-bottom:12px;padding-top:6px;border-top:1px solid rgba(255,255,255,.06)}
+  .struct-sections .section:first-child{border-top:none;padding-top:0}
+  .sky-compare-box{margin-top:12px}
+  .sky-compare-box label{display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0}
+  .sky-compare-box input[type="checkbox"]{transform:scale(.95)}
+  .pressure-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .pressure-card{padding:10px 12px;border:1px solid #334357;border-radius:12px;background:#0F1722}
+
+
+.graph-struct{
+display:grid;
+grid-template-columns: minmax(760px,2.4fr) minmax(340px,0.9fr);
+gap:20px;
+align-items:start;
+margin-bottom:20px;
+}
+.graph-struct .panel{
+width:100%;
+}
+
+
+#graph1, #graph2{
+width:100%;
+min-height:720px;
+}
+.graph-struct .panel:last-child{
+max-width:360px;
+max-height:720px;
+overflow:auto;
+}
+
+.graph-struct .panel:first-child{
+min-width:0;
+}
+
+.moon-checkboxes label{display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0}
+
+/* P5 vNext safe adapter layer */
+.vnext-stack{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:18px}
+.vnext-player-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vnext-input-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.vnext-summary-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+.summary-card{background:#0F1722;border:1px solid var(--border);border-radius:16px;padding:16px 18px;min-width:0}
+.summary-title{font-size:13px;color:var(--muted);font-weight:800;letter-spacing:.04em;margin-bottom:8px}
+.summary-chain{font-size:18px;font-weight:900;line-height:1.35;margin-bottom:8px;word-break:break-word}
+.summary-receivers{font-size:13px;color:var(--text)}
+.summary-meta{font-size:12px;color:var(--muted);margin-top:8px}
+.vnext-compare-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.channel-card{background:#0F1722;border:1px solid var(--border);border-radius:14px;padding:16px 18px;min-width:0}
+.channel-title{font-size:13px;color:var(--muted);font-weight:800;margin-bottom:8px}
+.channel-body{font-size:14px;line-height:1.5}
+.inline-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.moon-inline label{display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0}
+
+.compare-top{display:grid;grid-template-columns:1.2fr .9fr;gap:12px;align-items:start;margin-bottom:12px}
+.trigger-card{background:#0F1722;border:1px solid var(--border);border-radius:16px;padding:12px 14px}
+.trigger-title{font-size:13px;color:var(--muted);font-weight:800;letter-spacing:.04em;margin-bottom:8px}
+.trigger-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.trigger-chip{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:12px;border:1px solid #334357;background:#131C28;font-size:12px;font-weight:700}
+.trigger-chip input{margin:0}
+.compare-layer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.compare-layer{background:#0F1722;border:1px solid var(--border);border-radius:14px;padding:12px}
+.compare-layer h4{margin:0 0 10px 0;font-size:13px;letter-spacing:.04em;color:var(--muted)}
+.match-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid rgba(255,255,255,.05)}
+.match-row:first-child{border-top:0;padding-top:0}
+.match-label{font-size:13px;color:var(--muted)}
+.match-value{font-size:13px;font-weight:800;color:var(--text);text-align:right}
+.badge-yes,.badge-no,.badge-partial,.badge-match{display:inline-flex;align-items:center;justify-content:center;min-width:66px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.04em;border:1px solid transparent}
+.badge-yes{background:rgba(72,216,240,.12);color:#9BEAF7;border-color:rgba(72,216,240,.35)}
+.badge-no{background:rgba(255,84,84,.10);color:#FF9D9D;border-color:rgba(255,84,84,.25)}
+.badge-partial{background:rgba(230,197,90,.10);color:#F0D989;border-color:rgba(230,197,90,.28)}
+.badge-match{background:rgba(126,104,168,.18);color:#E8DBFF;border-color:rgba(220,202,247,.35)}
+.compare-player-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.compare-player-title .name{font-size:18px;font-weight:900}
+.small-hits{font-size:12px;color:var(--muted);line-height:1.45;margin-top:8px}
+.legacy-wrap{display:none !important; opacity:.9}
+@media(max-width:1200px){
+  .vnext-player-grid,.vnext-input-grid,.vnext-summary-grid,.vnext-compare-grid,.inline-fields{grid-template-columns:1fr}
+}
+
+
+
+/* compare visual vNext+ */
+.compare-top{display:grid;grid-template-columns:1.15fr 1.15fr .8fr;gap:12px;align-items:start;margin-bottom:12px}
+.trigger-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.trigger-actions button{padding:6px 10px;font-size:11px;border-radius:10px}
+.trigger-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.trigger-chip{display:flex;align-items:center;justify-content:center;gap:0;padding:9px 8px;border-radius:12px;border:1px solid #334357;background:#131C28;font-size:12px;font-weight:800;cursor:pointer;user-select:none;transition:.15s ease}
+.trigger-chip input{display:none}
+.trigger-chip.active-planet{background:rgba(255,204,102,.14);border-color:rgba(255,204,102,.45);color:#ffcc66;box-shadow:0 0 0 1px rgba(255,204,102,.12) inset}
+.trigger-chip.active-moon{background:rgba(157,217,255,.15);border-color:rgba(157,217,255,.45);color:#9dd9ff;box-shadow:0 0 0 1px rgba(157,217,255,.12) inset}
+.vnext-compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.channel-card{padding:18px 20px}
+.compare-layer-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+.compare-layer{padding:14px 14px 12px}
+.compare-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:10px 0 12px}
+.summary-pill{background:#111925;border:1px solid var(--border);border-radius:14px;padding:10px 12px}
+.summary-pill .k{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.05em;margin-bottom:6px}
+.summary-pill .v{font-size:14px;font-weight:900}
+.chain-tagline{font-size:16px;font-weight:900;line-height:1.45;word-break:break-word}
+.pl-planet{color:#7a7393}
+.pl-center{color:#ff4d5a;font-weight:950}
+.pl-recv{color:#46b8ff;font-weight:900}
+.sky-overlay{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:6px;font-size:11px;font-weight:900}
+.sky-item{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:3px 8px;border-radius:999px;border:1px solid #334357;background:#101925;color:#6ecfe0}
+.sky-item.match{border-color:rgba(255,204,102,.55);color:#ffcc66;background:rgba(255,204,102,.08)}
+.sky-item.center{border-color:rgba(255,77,90,.45);color:#ff8d99;background:rgba(255,77,90,.08)}
+.hit-moon{color:#9dd9ff;font-weight:900}
+.hit-planet{color:#ffcc66;font-weight:900}
+.lock-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(255,77,90,.10);border:1px solid rgba(255,77,90,.25);color:#ff9aa5;font-size:11px;font-weight:900}
+.recycle{color:#ffcc66;font-weight:900}
+.result-strong{color:#61D58A}
+.result-medium{color:#F0D989}
+.result-weak{color:#FF9D9D}
+.match-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.match-tag{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#131C28;border:1px solid #334357;font-size:11px;font-weight:800}
+.match-tag.recv{color:#46b8ff;border-color:rgba(70,184,255,.35)}
+.match-tag.chain{color:#d7b86b;border-color:rgba(230,197,90,.35)}
+.match-tag.moon{color:#9dd9ff;border-color:rgba(157,217,255,.35)}
+.match-tag.planet{color:#ffcc66;border-color:rgba(255,204,102,.35)}
+.match-tag.center{color:#ff9aa5;border-color:rgba(255,77,90,.35)}
+.edge-pos{color:#61D58A}.edge-neg{color:#FF9D9D}.edge-neutral{color:#B7C0D1}
+.score-chip{display:inline-flex;align-items:center;justify-content:center;min-width:48px;padding:4px 9px;border-radius:999px;background:#131C28;border:1px solid #334357;font-size:12px;font-weight:900}
+.type-chip{display:inline-flex;align-items:center;justify-content:center;padding:4px 10px;border-radius:999px;background:#131C28;border:1px solid #334357;font-size:11px;font-weight:900;color:#D9D0F0}
+
+@media(max-width:1200px){.compare-top,.vnext-compare-grid,.compare-summary{grid-template-columns:1fr}}
+
+</style>
+
+</head>
+<body>
+<!-- SKY ROLE OVERLAY -->
+<div class="panel">
+<h3>SKY FLOW (roles)</h3>
+<div class="row">
+<span class="pill" style="color:#7FDBFF">ENTRY (MO)</span>
+<span class="pill" style="color:#4AA3FF">CONDUCTOR *</span>
+<span class="pill" style="color:#FF4A4A">CENTER ◎</span>
+</div>
+<div class="small muted">Overlay shows qualitative roles instead of match counts: ENTRY → CONDUCTOR → CENTER</div>
+</div>
+
+<div class="wrap">
+  <div class="panel" style="padding:12px 16px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div style="font-size:20px;font-weight:900">Star Alchemy P5 — SKY / PLAYER 1 / PLAYER 2 / COMPARE</div>
+      <div class="small muted">Safe layer above R4 · HELIO unchanged · GEO filtered input</div>
+    </div>
+  </div>
+
+  <div class="vnext-stack">
+    <div class="panel">
+      <h3>SKY</h3>
+      <div class="vnext-input-grid">
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Rulers</div>
+          <input id="skyRulers" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="SA VE">
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Co-rulers</div>
+          <input id="skyCorulers" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="JU PRO NE">
+        </div>
+        <div class="row" style="align-items:end">
+          <button id="runSkyVNext">RUN SKY</button>
+          <span class="pill" id="skyStatusVNext">ready</span>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="small muted" style="margin-bottom:6px">GEO sky aspect table</div>
+        <textarea id="skyRawVNext" placeholder="Вставь GEO таблицу текущего неба"></textarea>
+      </div>
+      <div id="skySummaryVNext" class="summary-card" style="margin-top:12px">
+        <div class="summary-title">SKY STRUCTURE</div>
+        <div class="summary-chain">none</div>
+        <div class="summary-receivers">Receivers: none</div>
+        <div class="summary-meta">Rulers: none · Co-rulers: none</div>
+      </div>
+    </div>
+
+    <div class="vnext-player-grid">
+      <div class="panel">
+        <h3>PLAYER 1</h3>
+        <div class="vnext-input-grid">
+          <div>
+            <div class="small muted" style="margin-bottom:6px">Name</div>
+            <input id="p1NameVNext" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="Player 1">
+          </div>
+          <div>
+            <div class="small muted" style="margin-bottom:6px">Rulers</div>
+            <input id="p1RulersVNext" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="SU SA UR">
+          </div>
+          <div>
+            <div class="small muted" style="margin-bottom:6px">Co-rulers</div>
+            <input id="p1CorulersVNext" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="JU NE ME PRO">
+          </div>
+        </div>
+        <div class="inline-fields" style="margin-top:12px">
+          <div>
+            <div class="small muted" style="margin-bottom:6px">HELIO aspect table</div>
+            <textarea id="p1HelioRawVNext" placeholder="Вставь HELIO таблицу игрока"></textarea>
+          </div>
+          <div>
+            <div class="small muted" style="margin-bottom:6px">GEO aspect table</div>
+            <textarea id="p1GeoRawVNext" placeholder="Вставь GEO таблицу игрока"></textarea>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button id="runP1VNext">RUN PLAYER 1</button>
+          <span class="pill" id="p1StatusVNext">ready</span>
+        </div>
+        <div class="vnext-summary-grid">
+          <div id="p1HelioSummaryVNext" class="summary-card"></div>
+          <div id="p1GeoSummaryVNext" class="summary-card"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>PLAYER 2</h3>
+        <div class="vnext-input-grid">
+          <div>
+            <div class="small muted" style="margin-bottom:6px">Name</div>
+            <input id="p2NameVNext" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="Player 2">
+          </div>
+          <div>
+            <div class="small muted" style="margin-bottom:6px">Rulers</div>
+            <input id="p2RulersVNext" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="SU SA UR">
+          </div>
+          <div>
+            <div class="small muted" style="margin-bottom:6px">Co-rulers</div>
+            <input id="p2CorulersVNext" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="JU NE ME PRO">
+          </div>
+        </div>
+        <div class="inline-fields" style="margin-top:12px">
+          <div>
+            <div class="small muted" style="margin-bottom:6px">HELIO aspect table</div>
+            <textarea id="p2HelioRawVNext" placeholder="Вставь HELIO таблицу игрока"></textarea>
+          </div>
+          <div>
+            <div class="small muted" style="margin-bottom:6px">GEO aspect table</div>
+            <textarea id="p2GeoRawVNext" placeholder="Вставь GEO таблицу игрока"></textarea>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button id="runP2VNext">RUN PLAYER 2</button>
+          <span class="pill" id="p2StatusVNext">ready</span>
+        </div>
+        <div class="vnext-summary-grid">
+          <div id="p2HelioSummaryVNext" class="summary-card"></div>
+          <div id="p2GeoSummaryVNext" class="summary-card"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>COMPARE</h3>
+      <div class="compare-top">
+        <div class="trigger-card">
+          <div class="trigger-title">PLANET HITS</div>
+          <div class="trigger-actions">
+            <button id="planetAllVNext" type="button">ALL</button>
+            <button id="planetNoneVNext" type="button">NONE</button>
+          </div>
+          <div class="trigger-grid" id="planetHitsVNext"></div>
+        </div>
+        <div class="trigger-card">
+          <div class="trigger-title">MOON TRIGGER</div>
+          <div class="trigger-actions">
+            <button id="moonAllVNext" type="button">ALL</button>
+            <button id="moonNoneVNext" type="button">NONE</button>
+          </div>
+          <div class="trigger-grid" id="moonTriggerVNext"></div>
+        </div>
+        <div class="trigger-card">
+          <div class="trigger-title">COMPARE LOGIC</div>
+          <div class="small muted">SKY GEO compares separately with PLAYER HELIO and PLAYER GEO.</div>
+          <div class="small muted" style="margin-top:8px">Priority: <b>center</b> + <b>receivers</b> first, chain second. SKY window overlays the player chains.</div>
+          <div class="row" style="margin-top:12px">
+            <button id="runCompareVNext">RUN COMPARE</button>
+            <button id="runAllVNext">RUN ALL</button>
+          </div>
+          <div style="margin-top:10px"><span class="pill" id="compareStatusVNext">ready</span></div>
+        </div>
+      </div>
+      <div class="vnext-compare-grid">
+        <div id="compareP1VNext" class="channel-card"></div>
+        <div id="compareP2VNext" class="channel-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <details class="panel legacy-wrap">
+    <summary style="cursor:pointer;font-weight:800">Legacy v8.4.4 tool</summary>
+
+
+  <div class="panel">
+    <div class="row">
+      <div>
+        <div class="small muted">Mode</div>
+        <div class="modebar">
+          <button class="modebtn active" id="modeHelio">HELIO</button>
+          <button class="modebtn" id="modeGeo">GEO</button>
+        </div>
+      </div>
+      <div>
+        <div class="small muted">Work mode</div>
+        <div class="modebar">
+          <button class="modebtn active" id="workSingle">Single</button>
+          <button class="modebtn" id="workCompare">Compare 2 Charts</button>
+        </div>
+      </div>
+      <span class="pill">click node = focus mode</span>
+    </div>
+  </div>
+
+  <div id="singleView">
+  <div class="panel"><h2>Core 1</h2></div>
+
+    <div class="panel">
+      <h3>Chart 1 — Player</h3>
+      <div class="grid3">
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Player name</div>
+          <input id="player1" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="Player name">
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Rulers</div>
+          <input id="rulers1" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="SU SA UR">
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Co-rulers</div>
+          <input id="corulers1" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="JU NE ME PRO">
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Chart 1 — Raw aspect table</h3>
+        <textarea id="inputRaw1"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button id="import1">IMPORT</button>
+          <button id="run1">RUN</button>
+          <span class="pill" id="status1">ready</span>
+        </div>
+      </div>
+      <div class="panel hidden"><h3>Chart 1 — Declination</h3><textarea id="inputDecl1"></textarea></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel hidden-sky" style="padding:12px 14px">
+        <h3 style="margin-bottom:8px">Chart 1 — Sky cluster</h3>
+        <div id="skyBox1" class="row small" style="row-gap:4px;column-gap:10px;margin-bottom:8px"></div>
+        <div class="row"><button onclick="skyAll('1')">ALL</button><button onclick="skyNone('1')">NONE</button></div>
+      </div>
+      <div class="panel">
+        <h3>Chart 1 — Graph</h3>
+        <svg id="graph1" viewBox="0 0 1040 700" style="width:100%;min-height:760px"></svg>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel" style="align-self:start">
+<h3>Chart 1 — Structure</h3><div class="muted small" style="margin-bottom:8px">P4 core starts only if Rulers / Co-rulers are set.</div><div class="muted small" style="margin-bottom:8px">Angle parser uses only working angles. Base core uses wide natal orbs. Flip uses strict orbs and only adds confirmation. 0 / blank = no aspect.</div>
+        <div class="row" style="margin-bottom:10px">
+          <span class="badge" id="linksBadge1">links: 0</span>
+          <span class="badge" id="reinforcedBadge1">reinforced: 0</span>
+          <span class="badge" id="centerBadge1">center: none</span>
+          <span class="badge" id="chainScoreBadge1">chain score: 0</span>
+        </div>
+        <div><strong>Strongest chain</strong><div id="strongestChain1" class="muted">none</div></div>
+        <div><strong>Core</strong><div id="coreBox1" class="muted">none</div></div>
+        <div><strong>Conductors</strong><div id="condBox1" class="muted">none</div></div>
+        <div><strong>Shell</strong><div id="shellBox1" class="muted">none</div></div>
+        <div><strong>Locks</strong><div id="locksBox1" class="muted">none</div></div>
+        <div><strong>Hub</strong><div id="hubBox1" class="muted">none</div></div>
+        <div><strong>Node concentration</strong><div id="concentration1" class="muted">none</div></div>
+        <div><strong>Layer1 / Layer2</strong><div id="layers1" class="muted">none</div></div>
+        <div style="margin-top:10px"><strong>Rulers</strong><div id="showRulers1" class="muted">none</div></div>
+        <div><strong>Co-rulers</strong><div id="showCorulers1" class="muted">none</div></div>
+        <div><strong>Receivers</strong><div id="showReceivers1" class="muted">none</div></div>
+        <div><strong>Filter0 rows</strong><div id="showFilter01" class="muted">none</div></div>
+        <div><strong>Parser links</strong><div id="showParser1" class="muted">none</div></div>
+        <div class="section" style="margin-top:12px;padding:12px;border:1px solid #334357;border-radius:12px;background:#0F1722">
+          <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px">
+            <strong>Moon Trigger block</strong>
+            <span class="badge" id="triggerStatus1">Trigger: NO</span>
+          </div>
+          <div><strong>Moon links</strong><div id="moonBox1" class="muted">none</div></div>
+          <div><strong>Fast links</strong><div id="fastBox1" class="muted">none</div></div>
+          <div><strong>Slow links</strong><div id="slowBox1" class="muted">none</div></div>
+          <div><strong>Strongest chain orbs</strong><div id="chainOrbsBox1" class="muted">none</div></div>
+          <div><strong>Center hit orbs</strong><div id="centerOrbsBox1" class="muted">none</div></div>
+        </div>
+        <div><strong>Flip reinforced</strong><div id="flipReinforced1" class="muted">none</div></div>
+        <div><strong>Flip locks</strong><div id="flipLocks1" class="muted">none</div></div>
+      </div>
+      <div class="panel hidden-sky" id="coreSkyRes1">
+        <h3>Chart 1 — Sky resonance</h3>
+        <div class="row" style="margin-bottom:10px">
+          <span class="badge" id="coreHitsBadge1">sky → core: 0</span>
+          <span class="badge" id="centerHitsBadge1">sky → center: 0</span>
+          <span class="badge" id="chainHitsBadge1">sky → chain: 0</span>
+        </div>
+        <div><strong>Sky activated nodes</strong><div id="activatedNodes1" class="muted">none</div></div>
+        <div><strong>Sky → center hits</strong><div id="centerHitsBox1" class="muted">none</div></div>
+        <div><strong>Raw links</strong><div id="rawLinks1" class="list muted">none</div></div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="panel core-block"><h2>Core 2</h2></div>
+
+    <div class="panel">
+      <h3>Chart 2 — Player</h3>
+      <div class="grid3">
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Player name</div>
+          <input id="player2" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="Player name">
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Rulers</div>
+          <input id="rulers2" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="SU,SA,UR">
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Co-rulers</div>
+          <input id="corulers2" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="JU,NE,ME,PRO">
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Chart 2 — Raw aspect table</h3>
+        <textarea id="inputRaw2"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button id="import2">IMPORT</button>
+          <button id="run2">RUN</button>
+          <span class="pill" id="status2" style="display:inline-block !important;">ready</span>
+        </div>
+      </div>
+      <div class="panel hidden"><h3>Chart 2 — Declination</h3><textarea id="inputDecl2"></textarea></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel hidden-sky" style="padding:12px 14px">
+        <h3 style="margin-bottom:8px">Chart 2 — Sky cluster</h3>
+        <div id="skyBox2" class="row small" style="row-gap:4px;column-gap:10px;margin-bottom:8px"></div>
+        <div class="row"><button onclick="skyAll('2')">ALL</button><button onclick="skyNone('2')">NONE</button></div>
+      </div>
+      <div class="panel">
+        <h3>Chart 2 — Graph</h3>
+        <svg id="graph2" viewBox="0 0 1040 700" style="width:100%;min-height:760px"></svg>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel" style="align-self:start">
+<h3>Chart 2 — Structure</h3><div class="muted small" style="margin-bottom:8px">P4 core starts only if Rulers / Co-rulers are set.</div><div class="muted small" style="margin-bottom:8px">Angle parser uses only working angles. Base core uses wide natal orbs. Flip uses strict orbs and only adds confirmation. 0 / blank = no aspect.</div>
+        <div class="row" style="margin-bottom:10px">
+          <span class="badge" id="linksBadge2">links: 0</span>
+          <span class="badge" id="reinforcedBadge2">reinforced: 0</span>
+          <span class="badge" id="centerBadge2">center: none</span>
+          <span class="badge" id="chainScoreBadge2">chain score: 0</span>
+        </div>
+        <div><strong>Strongest chain</strong><div id="strongestChain2" class="muted">none</div></div>
+        <div><strong>Core</strong><div id="coreBox2" class="muted">none</div></div>
+        <div><strong>Conductors</strong><div id="condBox2" class="muted">none</div></div>
+        <div><strong>Shell</strong><div id="shellBox2" class="muted">none</div></div>
+        <div><strong>Locks</strong><div id="locksBox2" class="muted">none</div></div>
+        <div><strong>Hub</strong><div id="hubBox2" class="muted">none</div></div>
+        <div><strong>Node concentration</strong><div id="concentration2" class="muted">none</div></div>
+        <div><strong>Layer1 / Layer2</strong><div id="layers2" class="muted">none</div></div>
+        <div style="margin-top:10px"><strong>Rulers</strong><div id="showRulers2" class="muted">none</div></div>
+        <div><strong>Co-rulers</strong><div id="showCorulers2" class="muted">none</div></div>
+        <div><strong>Receivers</strong><div id="showReceivers2" class="muted">none</div></div>
+        <div><strong>Filter0 rows</strong><div id="showFilter02" class="muted">none</div></div>
+        <div><strong>Parser links</strong><div id="showParser2" class="muted">none</div></div>
+        <div class="section" style="margin-top:12px;padding:12px;border:1px solid #334357;border-radius:12px;background:#0F1722">
+          <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px">
+            <strong>Moon Trigger block</strong>
+            <span class="badge" id="triggerStatus2">Trigger: NO</span>
+          </div>
+          <div><strong>Moon links</strong><div id="moonBox2" class="muted">none</div></div>
+          <div><strong>Fast links</strong><div id="fastBox2" class="muted">none</div></div>
+          <div><strong>Slow links</strong><div id="slowBox2" class="muted">none</div></div>
+          <div><strong>Strongest chain orbs</strong><div id="chainOrbsBox2" class="muted">none</div></div>
+          <div><strong>Center hit orbs</strong><div id="centerOrbsBox2" class="muted">none</div></div>
+        </div>
+        <div><strong>Flip reinforced</strong><div id="flipReinforced2" class="muted">none</div></div>
+        <div><strong>Flip locks</strong><div id="flipLocks2" class="muted">none</div></div>
+      </div>
+      <div class="panel hidden-sky" id="coreSkyRes2">
+        <h3>Chart 2 — Sky resonance</h3>
+        <div class="row" style="margin-bottom:10px">
+          <span class="badge" id="coreHitsBadge2">sky → core: 0</span>
+          <span class="badge" id="centerHitsBadge2">sky → center: 0</span>
+          <span class="badge" id="chainHitsBadge2">sky → chain: 0</span>
+        </div>
+        <div><strong>Sky activated nodes</strong><div id="activatedNodes2" class="muted">none</div></div>
+        <div><strong>Sky → center hits</strong><div id="centerHitsBox2" class="muted">none</div></div>
+        <div><strong>Raw links</strong><div id="rawLinks2" class="list muted">none</div></div>
+      </div>
+    </div>
+
+    <div class="panel compare-block">
+      <h2>Compare</h2>
+      <div class="row" style="margin-bottom:10px">
+        <span class="badge" id="cmpCenter">center: none</span>
+        <span class="badge" id="cmpCore">core: none</span>
+        <span class="badge" id="cmpChain">chain: none</span>
+        <span class="badge" id="cmpEdge">edge: none</span>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <h3>Compare Lite — Battle Map</h3>
+          <svg id="compareLiteMap" viewBox="0 0 1400 700"></svg>
+        </div>
+        <div class="panel">
+          <h3>Compare Lite — P5</h3>
+          <div id="compareLiteNotes" class="muted">Compare shows only: sky → hub, hub → center.</div>
+          <div class="sky-compare-box">
+            <h3 style="margin:12px 0 8px 0">Sky Cluster</h3>
+            <div id="skyBoxCompare" class="row small" style="row-gap:4px;column-gap:10px;margin-bottom:8px"></div>
+            <div class="row"><button onclick="skyAllCompare()">ALL</button><button onclick="skyNoneCompare()">NONE</button></div>
+          </div>
+          
+<div class="panel" id="moonTriggerCompare" style="border:1px solid #4fd98b;margin-top:10px">
+  <h3>Moon Trigger</h3>
+  <div class="moon-checkboxes row small" id="moonBoxCompare" style="row-gap:4px;column-gap:10px;margin-bottom:8px"></div>
+  <div class="row" style="margin-bottom:8px">
+    <button onclick="clearMoon()">Clear Moon</button>
+  </div>
+  <div class="small muted">
+    Moon links: <span id="moonLinks">none</span><br>
+    Fast links: <span id="moonFast">none</span><br>
+    Slow links: <span id="moonSlow">none</span><br>
+    Moon → center: <span id="moonCenterHit">no</span>
+  </div>
+</div>
+
+<div class="pressure-grid">
+            <div class="pressure-card"><strong>Center pressure</strong><div id="cmpCenterPressure"><b>Core 1</b> →  0 | <b>Core 2</b> →  0</div></div>
+            <div class="pressure-card"><strong>Hub pressure</strong><div id="cmpHubPressure"><b>Core 1</b> →  0 | <b>Core 2</b> →  0</div></div>
+            <div class="pressure-card"><strong>Cluster pressure</strong><div id="cmpClusterPressure"><b>Core 1</b> →  0 | <b>Core 2</b> →  0</div></div>
+            <div class="pressure-card"><strong>Chain pressure</strong><div id="cmpChainPressure"><b>Core 1</b> →  0 | <b>Core 2</b> →  0</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  <div id="compareView" class="hidden">
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>Chart 1 — P5 protocol</h3>
+      <div class="grid2">
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Rulers</div>
+          <input id="rulersC1" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="SU SA UR">
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Co-rulers</div>
+          <input id="corulersC1" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="JU NE ME PRO">
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Chart 2 — P5 protocol</h3>
+      <div class="grid2">
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Rulers</div>
+          <input id="rulersC2" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="SU SA UR">
+        </div>
+        <div>
+          <div class="small muted" style="margin-bottom:6px">Co-rulers</div>
+          <input id="corulersC2" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="JU NE ME PRO">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>Chart 1 — Player</h3>
+      <input id="playerC1" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="Player 1 name">
+    </div>
+    <div class="panel">
+      <h3>Chart 2 — Player</h3>
+      <input id="playerC2" style="width:100%;padding:12px;border-radius:12px;border:1px solid #334357;background:#0F1722;color:var(--text);font:inherit" placeholder="Player 2 name">
+    </div>
+  </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Chart 1 — Raw aspect table</h3>
+        <textarea id="inputRawC1"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button id="importC1">IMPORT 1</button>
+          <button id="runC1">RUN 1</button>
+          <span class="pill" id="statusC1">ready</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Chart 2 — Raw aspect table</h3>
+        <textarea id="inputRawC2"></textarea>
+        <div class="row" style="margin-top:10px">
+          <button id="importC2">IMPORT 2</button>
+          <button id="runC2">RUN 2</button>
+          <span class="pill" id="statusC2">ready</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel hidden"><h3>Chart 1 — Declination</h3><textarea id="inputDeclC1"></textarea></div>
+      <div class="panel hidden"><h3>Chart 2 — Declination</h3><textarea id="inputDeclC2"></textarea></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel" style="padding:12px 14px">
+        <h3 style="margin-bottom:8px">Chart 1 — Sky cluster</h3>
+        <div id="skyBoxC1" class="row small" style="row-gap:4px;column-gap:10px;margin-bottom:8px"></div>
+        <div class="row"><button onclick="skyAll('C1')">ALL</button><button onclick="skyNone('C1')">NONE</button></div>
+      </div>
+      <div class="panel" style="padding:12px 14px">
+        <h3 style="margin-bottom:8px">Chart 2 — Sky cluster</h3>
+        <div id="skyBoxC2" class="row small" style="row-gap:4px;column-gap:10px;margin-bottom:8px"></div>
+        <div class="row"><button onclick="skyAll('C2')">ALL</button><button onclick="skyNone('C2')">NONE</button></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel"><h3>Compare Lite — Battle Map</h3><svg id="compareLiteMap" viewBox="0 0 1400 700"></svg></div>
+      <div class="panel"><h3>Compare Lite — Notes</h3><div id="compareLiteNotes" class="muted">none</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h3>Chart 1 — Summary</h3>
+        <div class="row">
+          <span class="badge" id="centerBadgeC1">center: none</span>
+          <span class="badge" id="chainScoreBadgeC1">chain score: 0</span>
+          <span class="badge" id="centerHitsBadgeC1">sky → center: 0</span>
+          <span class="badge" id="coreHitsBadgeC1">sky → core: 0</span>
+        </div>
+        <div id="summaryC1" class="muted" style="margin-top:10px">none</div>
+      </div>
+      <div class="panel">
+        <h3>Chart 2 — Summary</h3>
+        <div class="row">
+          <span class="badge" id="centerBadgeC2">center: none</span>
+          <span class="badge" id="chainScoreBadgeC2">chain score: 0</span>
+          <span class="badge" id="centerHitsBadgeC2">sky → center: 0</span>
+          <span class="badge" id="coreHitsBadgeC2">sky → core: 0</span>
+        </div>
+        <div id="summaryC2" class="muted" style="margin-top:10px">none</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>COMPARE</h3>
+      <div class="grid4">
+        <div><strong>Center pressure</strong><div id="cmpCenter" class="muted">none</div></div>
+        <div><strong>Core pressure</strong><div id="cmpCore" class="muted">none</div></div>
+        <div><strong>Chain pressure</strong><div id="cmpChain" class="muted">none</div></div>
+        <div><strong>Structural edge</strong><div id="cmpEdge" class="muted">none</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE_HELIO = ["SU","ME","VE","MA","JU","SA","UR","NE","PL","CHI","PRO"];
+const BASE_GEO   = ["SU","MO","ME","VE","MA","JU","SA","UR","NE","PL","CHI","PRO"];
+let MODE='HELIO', WORK='Single';
+
+function bodies(){ return MODE==='HELIO' ? BASE_HELIO : BASE_GEO; }
+function fastBodies(){ return MODE==='HELIO' ? ["SU","ME","VE","MA"] : ["SU","MO","ME","VE","MA"]; }
+function slowBodies(){ return MODE==='HELIO' ? ["JU","SA","UR","NE","PL","CHI","PRO"] : ["JU","SA","UR","NE","PL","CHI","PRO"]; }
+
+function normLabel(label){
+  const raw=String(label||'').trim().toLowerCase();
+  const map={earth:'SU',su:'SU',sun:'SU',mo:'MO',moon:'MO',me:'ME',mercury:'ME',ve:'VE',venus:'VE',ma:'MA',mars:'MA',ju:'JU',jupiter:'JU',sa:'SA',saturn:'SA',ur:'UR',uranus:'UR',ne:'NE',neptune:'NE',pl:'PL',pluto:'PL',chi:'CHI',chiron:'CHI',pro:'PRO',proserpina:'PRO',nn:'NN',sn:'SN'};
+  return map[raw]||null;
+}
+function hasGlyph(s){ return /[\uE000-\uF8FF]/.test(s); }
+
+function makeState(name){
+  return {
+    name,
+    rawMatrix:{}, declMatrix:{}, edges:[], incoming:{},
+    center:null, strongestChain:[], chainScore:0, sky:new Set(bodies()), filter0Rows:[],
+    core:[], conductors:[], shell:[], locks:[], lockNodes:new Set(),
+    freq:{}, layer1:[], layer2:[], nodeConcentration:[], hub:[],
+    baseEdges:[], flipEdges:[], flipReinforced:[], flipLocks:[],
+    focusNode:null, focusNeighbors:new Set()
+  };
+}
+function initMatrix(obj, bodiesList){ bodiesList.forEach(r=>{obj[r]={}; bodiesList.forEach(c=>obj[r][c]=null);}); }
+function resetState(st){
+  st.rawMatrix={}; st.declMatrix={}; initMatrix(st.rawMatrix, bodies()); initMatrix(st.declMatrix, bodies());
+  st.edges=[]; st.incoming={}; bodies().forEach(b=>st.incoming[b]=0);
+  st.center=null; st.strongestChain=[]; st.chainScore=0; st.sky=new Set(bodies()); st.filter0Rows=[];
+  st.core=[]; st.conductors=[]; st.shell=[]; st.locks=[]; st.lockNodes=new Set();
+  st.freq={}; st.layer1=[]; st.layer2=[]; st.nodeConcentration=[]; st.hub=[];
+  st.baseEdges=[]; st.flipEdges=[]; st.flipReinforced=[]; st.flipLocks=[];
+  st.focusNode=null; st.focusNeighbors=new Set();
+}
+
+let S1=makeState('1'), S2=makeState('2'), C1=makeState('C1'), C2=makeState('C2');
+[S1,S2,C1,C2].forEach(resetState);
+S1.sky=new Set(['MO', ...bodies().filter(x=>x!=='MO')]);
+S2.sky=new Set(['MO', ...bodies().filter(x=>x!=='MO')]);
+S1.moon=new Set();
+S2.moon=new Set();
+
+function buildSky(targetId, st){
+  const box=document.getElementById(targetId); if(!box) return;
+  box.innerHTML='';
+  bodies().forEach(p=>{
+    const lab=document.createElement('label');
+    lab.innerHTML=`<input type="checkbox" ${st.sky.has(p)?'checked':''} data-p="${p}" data-state="${st.name}"> ${p}`;
+    box.appendChild(lab);
+  });
+}
+
+function buildMoonCompare(){
+  const box=document.getElementById('moonBoxCompare'); if(!box) return;
+  box.innerHTML='';
+  ['ME','VE','MA','JU','SA','UR','NE','PL','CHI','PRO'].forEach(p=>{
+    const lab=document.createElement('label');
+    const checked = S1.moon && S1.moon.has(p);
+    lab.innerHTML=`<input type="checkbox" ${checked?'checked':''} data-moonp="${p}"> ${p}`;
+    box.appendChild(lab);
+  });
+}
+function clearMoon(){
+  S1.moon=new Set();
+  S2.moon=new Set();
+  buildMoonCompare();
+  safeUpdateCompare();
+}
+
+function buildCompareSky(){
+  const box=document.getElementById('skyBoxCompare'); if(!box) return;
+  box.innerHTML='';
+  const shared=[...new Set([...S1.sky, ...S2.sky])];
+  const compareBodies=['MO', ...bodies().filter(x=>x!=='MO')];
+  compareBodies.forEach(p=>{
+    const lab=document.createElement('label');
+    lab.innerHTML=`<input type="checkbox" ${shared.includes(p)?'checked':''} data-cmpp="${p}"> ${p}`;
+    box.appendChild(lab);
+  });
+}
+function rebuildAllSky(){
+  buildSky('skyBox1', S1); buildSky('skyBox2', S2); buildSky('skyBoxC1', C1); buildSky('skyBoxC2', C2); buildCompareSky(); buildMoonCompare();
+}
+rebuildAllSky();
+
+document.addEventListener('change', e=>{
+  if(e.target.dataset && e.target.dataset.moonp){
+    const p=e.target.dataset.moonp;
+    if(!S1.moon) S1.moon=new Set();
+    if(!S2.moon) S2.moon=new Set();
+    if(e.target.checked){ S1.moon.add(p); S2.moon.add(p); }
+    else { S1.moon.delete(p); S2.moon.delete(p); }
+    safeUpdateCompare();
+    return;
+  }
+  if(e.target.dataset && e.target.dataset.cmpp){
+    const p=e.target.dataset.cmpp;
+    if(e.target.checked){ S1.sky.add(p); S2.sky.add(p); }
+    else { S1.sky.delete(p); S2.sky.delete(p); }
+    buildCompareSky();
+    safeUpdateCompare();
+    return;
+  }
+  if(!e.target.dataset || !e.target.dataset.state || !e.target.dataset.p) return;
+  const st = ({'1':S1,'2':S2,'C1':C1,'C2':C2})[e.target.dataset.state];
+  const p=e.target.dataset.p;
+  if(e.target.checked) st.sky.add(p); else st.sky.delete(p);
+  rerender(st);
+  if(WORK==='Compare') updateCompare();
+});
+function skyAllCompare(){ S1.sky=new Set(['MO', ...bodies().filter(x=>x!=='MO')]); S2.sky=new Set(['MO', ...bodies().filter(x=>x!=='MO')]); buildCompareSky(); safeUpdateCompare(); }
+function skyNoneCompare(){ S1.sky=new Set(); S2.sky=new Set(); buildCompareSky(); safeUpdateCompare(); }
+
+
+
+const WORKING_ANGLES=[15,18,30,36,40,45,51,60,72,80,90,102,108,120,135,144,150,160,180];
+const BASE_ORBS={15:3,18:3,30:4,36:3,40:3,45:4,51:3,60:5,72:4,80:3,90:5,102:3,108:4,120:5,135:4,144:4,150:4,160:3,180:5};
+const FLIP_ORBS={15:1.5,18:1.5,30:2,36:1.5,40:1.5,45:2,51:1.5,60:2.5,72:2,80:1.5,90:2.5,102:1.5,108:2,120:2.5,135:2,144:2,150:2,160:1.5,180:2.5};
+const SKY_ORBS = {
+15:1.5,
+18:1.5,
+30:1.5,
+36:1.5,
+40:1.5,
+45:1.5,
+51:1.5,
+60:2.5,
+72:1.5,
+80:1.5,
+90:2.5,
+102:1.5,
+108:1.5,
+120:2.5,
+135:1.5,
+144:1.5,
+150:1.5,
+160:2,
+180:2
+};
+
+function cleanNumToken(s){
+  return String(s||'').replace(/,/g,'.').replace(/[^0-9.\-]/g,'').trim();
+}
+function parseAngleToken(token){
+  const raw = cleanNumToken(token);
+  if(!raw) return null;
+  const v = parseFloat(raw);
+  if(!Number.isFinite(v)) return null;
+  if(Math.abs(v) < 0.0001) return null;
+  return v;
+}
+function nearestWorkingAngle(v, orbMap){
+  let bestAngle=null, bestDist=1e9;
+  for(const ang of WORKING_ANGLES){
+    const d = Math.abs(v-ang);
+    if(d < bestDist){ bestDist=d; bestAngle=ang; }
+  }
+  if(bestAngle==null) return null;
+  const maxOrb = orbMap[bestAngle] ?? 0;
+  return {angle:bestAngle, dist:bestDist, within: bestDist <= maxOrb, maxOrb};
+}
+function isWorkingAngle(v){
+  const hit = nearestWorkingAngle(v, BASE_ORBS);
+  return hit && hit.within ? hit : null;
+}
+function isFlipAngle(v){
+  const hit = nearestWorkingAngle(v, FLIP_ORBS);
+  return hit && hit.within ? hit : null;
+}
+function isSkyAngle(v){
+  const hit = nearestWorkingAngle(v, SKY_ORBS);
+  return hit && hit.within ? hit : null;
+}
+
+function parseRaw(text, st){
+  st.rawMatrix={}; bodies().forEach(r=>st.rawMatrix[r]={});
+  const lines=String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(!lines.length) return 0;
+  let header=null;
+  let count=0;
+
+  for(const line of lines){
+    const parts = line.split('|').map(x=>x.trim());
+    const rowName = normLabel(parts[0]);
+    if(!rowName){
+      const maybeHeader = parts.map(normLabel).filter(Boolean);
+      if(maybeHeader.length>=3) header = maybeHeader;
+      continue;
+    }
+    if(!header) continue;
+    if(!(bodies().includes(rowName) || rowName==='MO')) continue;
+    st.rawMatrix[rowName] ||= {};
+    for(let i=1;i<parts.length && i<=header.length;i++){
+      const col = header[i-1];
+      if(!(bodies().includes(col) || col==='MO')) continue;
+      const ang = parseAngleToken(parts[i]);
+      if(ang==null) continue;
+      const hit = isWorkingAngle(ang);
+      if(!hit) continue;
+      st.rawMatrix[rowName][col] = {w:1, orb:hit.dist, angle:hit.angle};
+      count++;
+    }
+  }
+  return count;
+}
+function parseDecl(text, st){
+  initMatrix(st.declMatrix, bodies());
+  const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  let imported=0;
+  for(const line of lines){
+    const m=line.match(/^([A-Za-z]+)\s*(\|\||parallel|contra|contraparallel)\s*([A-Za-z]+)$/i);
+    if(!m) continue;
+    const a=normLabel(m[1]), kind=m[2].toLowerCase(), b=normLabel(m[3]);
+    if(!a || !b || !bodies().includes(a) || !bodies().includes(b)) continue;
+    st.declMatrix[b][a]={w:1.5,orb:null,type:kind.includes('contra')?'decl-contra':'decl'};
+    imported++;
+  }
+  return imported;
+}
+
+function computeP4Core(st){
+  const lists = getProtocolLists(st);
+  const allowed = new Set([...(lists.rulers||[]), ...(lists.corulers||[])]);
+  st.freq = {}; bodies().forEach(p=>st.freq[p]=0);
+  st.baseEdges.forEach(e=>{ st.freq[e.to] = (st.freq[e.to]||0) + 1; });
+
+  const vals = bodies().map(p=>st.freq[p]||0);
+  const maxFreq = Math.max(0, ...vals);
+  st.nodeConcentration = maxFreq>0 ? bodies().filter(p => (st.freq[p]||0)===maxFreq) : [];
+  st.layer1 = maxFreq>0 ? bodies().filter(p => (st.freq[p]||0)===maxFreq) : [];
+  st.layer2 = maxFreq>1 ? bodies().filter(p => (st.freq[p]||0)===(maxFreq-1)) : [];
+
+  // hub = Layer1 + rulers/co-rulers that are present in filtered structure
+  const presentAllowed = [...allowed].filter(p => (st.freq[p]||0)>0);
+  st.hub = [...new Set([...(st.layer1||[]), ...presentAllowed])];
+
+  // center = hub node with strongest convergence (base graph only, pre-flip)
+  const candidates = st.hub.length ? st.hub.slice() : (st.nodeConcentration.length ? st.nodeConcentration.slice() : bodies().filter(p => (st.freq[p]||0)>0));
+  let best = null, bestScore = -1;
+  for(const p of candidates){
+    const incomingCount = st.baseEdges.filter(e=>e.to===p).length;
+    const incomingWeight = st.baseEdges.filter(e=>e.to===p).reduce((a,e)=>a+e.w,0);
+    const freq = st.freq[p]||0;
+    const chainBonus = (st.layer1.includes(p)?2:0) + (allowed.has(p)?1:0);
+    const score = incomingCount*100 + incomingWeight*20 + freq*10 + chainBonus;
+    if(score > bestScore){ bestScore = score; best = p; }
+  }
+  st.center = best || null;
+}
+
+function buildEdges(st){
+  const allEdges=[]; st.incoming={}; bodies().forEach(p=>st.incoming[p]=0);
+  bodies().forEach(n=>bodies().forEach(t=>{
+    const raw=st.rawMatrix[n]?.[t], decl=st.declMatrix[n]?.[t];
+    if(raw) allEdges.push({from:t,to:n,w:raw.w,orb:raw.orb,angle:raw.angle,type:'raw',self:t===n});
+    if(decl) allEdges.push({from:t,to:n,w:decl.w,orb:decl.orb,type:decl.type,self:t===n});
+  }));
+  st.baseEdges = allEdges.slice();
+  st.edges = allEdges.slice();
+  st.filter0Rows = computeFilter0Rows(st);
+  const keep = new Set(st.filter0Rows);
+  st.baseEdges = allEdges.filter(e => keep.has(e.to));
+  st.edges = st.baseEdges.slice();
+  bodies().forEach(p=>st.incoming[p]=0);
+  st.baseEdges.forEach(e=>{ st.incoming[e.to] += e.w; });
+}
+function adjacency(st){
+  const adj={}; bodies().forEach(p=>adj[p]=[]);
+  st.edges.forEach(e=>adj[e.from].push({to:e.to,w:e.w,type:e.type}));
+  return adj;
+}
+function edgeScore(st,e){
+  let s=e.w * calcOrbWeight(e);
+  if(slowBodies().includes(e.from)) s+=1.25;
+  if(slowBodies().includes(e.to)) s+=0.5;
+  if(e.type.startsWith('decl')) s+=0.35;
+  if(e.to===st.center) s+=0.75;
+  return s;
+}
+function findCenter(st){ computeP4Core(st); }
+function findStrongestChain(st){
+  st.strongestChain=[]; st.chainScore=0; if(!st.center) return;
+  const savedEdges = st.edges;
+  st.edges = st.baseEdges.slice();
+  const adj=adjacency(st);
+  let bestScore=-1, bestPath=[st.center];
+
+  function dfs(cur,path,score,seen){
+    if(path[path.length-1]===st.center && score>bestScore){
+      bestScore=score; bestPath=[...path];
+    }
+    if(path.length>=10) return;
+    for(const n of adj[cur]||[]){
+      if(seen.has(n.to)) continue;
+      const edge=st.baseEdges.find(e=>e.from===cur&&e.to===n.to&&e.type===n.type);
+      const s=new Set(seen); s.add(n.to);
+      dfs(n.to,[...path,n.to],score+(edge?edgeScore(st,edge):n.w),s);
+    }
+  }
+  bodies().forEach(start=>dfs(start,[start],0,new Set([start])));
+  st.strongestChain=bestPath;
+  st.chainScore=bestScore>0?bestScore:0;
+  st.edges = savedEdges;
+}
+function buildStructure(st){
+  const savedEdges = st.edges;
+  st.edges = st.baseEdges.slice();
+  const adj=adjacency(st);
+  const directToCenter=st.center ? st.baseEdges.filter(e=>e.to===st.center).sort((a,b)=>b.w-a.w).map(e=>e.from) : [];
+  const chainNodes=st.strongestChain.slice(0,-1);
+
+  st.core=[...new Set([...(st.hub||[]), st.center, ...directToCenter.slice(0,2)].filter(Boolean))];
+  st.conductors=[...new Set(chainNodes.filter(x=>!st.core.includes(x)))];
+  st.shell=bodies().filter(p=>!st.core.includes(p)&&!st.conductors.includes(p)&&((st.freq[p]||0)>0||(adj[p]||[]).length>0));
+
+  // base locks
+  const pair=new Set(st.baseEdges.map(e=>`${e.from}|${e.to}`));
+  st.locks=[]; st.lockNodes=new Set();
+  bodies().forEach(a=>bodies().forEach(b=>{
+    if(a<b && pair.has(`${a}|${b}`) && pair.has(`${b}|${a}`)){
+      st.locks.push(`⛓ ${a} ↔ ${b}`); st.lockNodes.add(a); st.lockNodes.add(b);
+    }
+  }));
+
+  // flip as final overlay only: stricter orbs, no self-links, only confirm existing base structure
+  st.flipEdges = st.baseEdges
+    .filter(e => !e.self && e.from!==e.to && e.angle!=null && isFlipAngle(e.angle))
+    .map(e => ({from:e.to, to:e.from, w:e.w, orb:(isFlipAngle(e.angle)||{}).dist, angle:e.angle, type:'flip'}));
+  const basePair = new Set(st.baseEdges.filter(e=>!e.self && e.from!==e.to).map(e=>`${e.from}|${e.to}`));
+  st.flipReinforced = [];
+  st.flipLocks = [];
+  const flipLockNodes = new Set();
+  st.flipEdges.forEach(e=>{
+    const reverseBase = `${e.to}|${e.from}`;
+    if(basePair.has(reverseBase)){
+      st.flipReinforced.push(`${e.from} ↔ ${e.to}`);
+    }
+  });
+  const reinforcedPairs = new Set(st.flipReinforced.map(x=>{
+    const m=x.split(' ↔ '); return m.length===2?`${m[0]}|${m[1]}`:'';
+  }).filter(Boolean));
+  bodies().forEach(a=>bodies().forEach(b=>{
+    if(a<b && reinforcedPairs.has(`${a}|${b}`)){
+      st.flipLocks.push(`⛓ ${a} ↔ ${b}`); flipLockNodes.add(a); flipLockNodes.add(b);
+    }
+  }));
+  [...flipLockNodes].forEach(x=>st.lockNodes.add(x));
+  st.edges = savedEdges;
+}
+function selectedEdges(st){
+  const out=[];
+  const rows=Object.keys(st.rawMatrix||{});
+  rows.forEach(row=>{
+    const cols=st.rawMatrix[row]||{};
+    Object.keys(cols).forEach(col=>{
+      // ignore diagonal / self-aspect cells in single-map runs
+      if(row===col) return;
+      if(!st.sky.has(col)) return;
+      const cell=cols[col];
+      if(!cell || cell.angle==null) return;
+      const hit=isSkyAngle(cell.angle);
+      if(!hit) return;
+      out.push({from:col,to:row,angle:hit.angle,orb:hit.dist,w:1,type:'sky'});
+    });
+  });
+  return out;
+}
+
+function rerender(st){
+  const gid = graphId(st);
+  if(gid) drawGraph(st, gid);
+  updatePanels(st);
+}
+function safeUpdateCompare(){
+  try{ updateCompare(); }catch(err){
+    const notes=document.getElementById('compareLiteNotes');
+    if(notes) notes.textContent='Compare error: '+(err && err.message ? err.message : 'unknown');
+  }
+}
+function graphId(st){ return st.name==='1' ? 'graph1' : (st.name==='2' ? 'graph2' : null); }
+
+
+function planetColor(p){
+  if(["PL","NE","UR","SA"].includes(p)) return {fill:"#9A6CFF", stroke:"#E0CCFF"};
+  if(["PRO","CHI"].includes(p)) return {fill:"#98F5A7", stroke:"#E2FFE7"};
+  return null;
+}
+
+
+function planetColor(p){
+  if(["PL","NE","UR","SA"].includes(p)) return {fill:"#9A6CFF", stroke:"#E0CCFF"};
+  if(["PRO","CHI"].includes(p)) return {fill:"#98F5A7", stroke:"#E2FFE7"};
+  return null;
+}
+
+
+function moonEdgeColor(e, st){
+  if(st.name==='1' || st.name==='2') return false;
+  return MODE==='GEO' && st.sky.has('MO') && (e.from==='MO' || e.to==='MO');
+}
+
+
+function calcOrbWeight(e){
+  if(e.orb==null || isNaN(e.orb)) return 1;
+  const o = Math.max(0, Math.min(30, e.orb));
+  return 1 + (30 - o) / 30;
+}
+function drawGraph(st, svgId){
+  const svg=document.getElementById(svgId); if(!svg) return;
+  svg.innerHTML='';
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+
+  const marker=document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id',`arrow-${st.name}`);
+  marker.setAttribute('viewBox','0 0 12 12');
+  marker.setAttribute('refX','11');
+  marker.setAttribute('refY','6');
+  marker.setAttribute('markerWidth','10');
+  marker.setAttribute('markerHeight','10');
+  marker.setAttribute('orient','auto-start-reverse');
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d','M 0 0 L 12 6 L 0 12 z');
+  path.setAttribute('fill','#E3E9EF');
+  marker.appendChild(path);
+  defs.appendChild(marker);
+
+  const glow1=document.createElementNS('http://www.w3.org/2000/svg','filter');
+  glow1.setAttribute('id',`glow-sky-${st.name}`);
+  glow1.innerHTML='<feGaussianBlur stdDeviation="3.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>';
+  defs.appendChild(glow1);
+
+  const glow2=document.createElementNS('http://www.w3.org/2000/svg','filter');
+  glow2.setAttribute('id',`glow-center-${st.name}`);
+  glow2.innerHTML='<feGaussianBlur stdDeviation="5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>';
+  defs.appendChild(glow2);
+
+  const glow3=document.createElementNS('http://www.w3.org/2000/svg','filter');
+  glow3.setAttribute('id',`glow-chain-${st.name}`);
+  glow3.innerHTML='<feGaussianBlur stdDeviation="2.6" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>';
+  defs.appendChild(glow3);
+
+  svg.appendChild(defs);
+
+  const cx=520, cy=350, r=275, pos={};
+  bodies().forEach((p,i)=>{
+    const ang=-Math.PI/2 + i/bodies().length*2*Math.PI;
+    pos[p]={x:cx+Math.cos(ang)*r, y:cy+Math.sin(ang)*r};
+  });
+
+  const chainPairs=new Set();
+  for(let i=0;i<st.strongestChain.length-1;i++) chainPairs.add(`${st.strongestChain[i]}|${st.strongestChain[i+1]}`);
+
+  const selected=(st.name==='1' || st.name==='2') ? [] : selectedEdges(st);
+  const activatedSet=new Set(selected.map(e=>e.to));
+  const centerHits=selected.filter(e=>e.to===st.center);
+  const centerHitCount=centerHits.length;
+
+  // center pressure ring - crisp, not muddy, with light pulse
+  if(st.center && centerHitCount>0){
+    const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    ring.setAttribute('cx',pos[st.center].x);
+    ring.setAttribute('cy',pos[st.center].y);
+    ring.setAttribute('r',31 + centerHitCount*2.8);
+    ring.setAttribute('fill','none');
+    ring.setAttribute('stroke','rgba(72,216,240,0.92)');
+    ring.setAttribute('stroke-width',Math.min(6.2,2 + centerHitCount*0.65));
+    ring.setAttribute('filter',`url(#glow-sky-${st.name})`);
+    const anim=document.createElementNS('http://www.w3.org/2000/svg','animate');
+    anim.setAttribute('attributeName','stroke-width');
+    anim.setAttribute('values',`${Math.min(5.2,1.6 + centerHitCount*0.55)};${Math.min(6.8,2.5 + centerHitCount*0.8)};${Math.min(5.2,1.6 + centerHitCount*0.55)}`);
+    anim.setAttribute('dur','1.35s');
+    anim.setAttribute('repeatCount','indefinite');
+    ring.appendChild(anim);
+    svg.appendChild(ring);
+  }
+
+  // draw edges
+  st.baseEdges.forEach(e=>{
+    const a=pos[e.from], b=pos[e.to];
+    const inSky=(st.name==='1' || st.name==='2') ? false : st.sky.has(e.from);
+    const inFocus=!st.focusNode || e.from===st.focusNode || e.to===st.focusNode || (st.focusNeighbors.has(e.from)&&st.focusNeighbors.has(e.to));
+    const strongest=chainPairs.has(`${e.from}|${e.to}`);
+    const isDecl=e.type.startsWith('decl');
+    const moonEdge = moonEdgeColor(e, st);
+    const centerSkyFocus = st.focusNode===st.center && inSky && e.to===st.center;
+
+    let color='var(--link)';
+    if(isDecl) color='var(--decl)';
+    if(strongest) color='var(--chain)';
+    if(inSky) color='var(--sky)';
+    if(moonEdge) color='#7CFF9E';
+
+    let width=strongest?5.2:(e.type==='raw'?(e.w>=2?2.3:1.35):1.7);
+    if(moonEdge) width=Math.max(width,4.8);
+    if(centerSkyFocus) width=Math.max(width,6.2);
+
+    let opacity;
+    if(!st.focusNode){
+      if(strongest) opacity=1;
+      else if(moonEdge) opacity=1;
+      else if(inSky) opacity=0.9;
+      else opacity=0.14;
+    } else {
+      if(e.from===st.center || e.to===st.center) opacity=1;
+      else opacity=inFocus ? (inSky?1:0.9) : 0.05;
+    }
+
+    const el=document.createElementNS('http://www.w3.org/2000/svg', e.self?'path':'line');
+    if(e.self){
+      const d=`M ${a.x} ${a.y-22} C ${a.x+34} ${a.y-40}, ${a.x+38} ${a.y+28}, ${a.x} ${a.y+26} C ${a.x-38} ${a.y+28}, ${a.x-34} ${a.y-40}, ${a.x} ${a.y-22}`;
+      el.setAttribute('d',d);
+      el.setAttribute('fill','none');
+    } else {
+      const dx=b.x-a.x, dy=b.y-a.y, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+      const sx=a.x+ux*28, sy=a.y+uy*28, ex=b.x-ux*34, ey=b.y-uy*34;
+      el.setAttribute('x1',sx); el.setAttribute('y1',sy);
+      el.setAttribute('x2',ex); el.setAttribute('y2',ey);
+      el.setAttribute('marker-end',`url(#arrow-${st.name})`);
+    }
+    el.setAttribute('stroke',color);
+    el.setAttribute('stroke-width',width);
+    el.setAttribute('opacity',opacity);
+    if(isDecl) el.setAttribute('stroke-dasharray','7 5');
+    if(inSky) el.setAttribute('filter',`url(#glow-sky-${st.name})`);
+    if(strongest){
+      el.setAttribute('filter',`url(#glow-chain-${st.name})`);
+      if(WORK!=='Compare'){ const anim=document.createElementNS('http://www.w3.org/2000/svg','animate');
+      anim.setAttribute('attributeName','stroke-width');
+      anim.setAttribute('values',`${width-0.5};${width+0.7};${width-0.5}`);
+      anim.setAttribute('dur','1.55s');
+      anim.setAttribute('repeatCount','indefinite');
+      el.appendChild(anim); }
+    }
+    if(moonEdge){
+      el.setAttribute('filter',`url(#glow-sky-${st.name})`);
+      if(WORK!=='Compare'){ const animMoon=document.createElementNS('http://www.w3.org/2000/svg','animate');
+      animMoon.setAttribute('attributeName','stroke-width');
+      animMoon.setAttribute('values',`${width-0.6};${width+0.9};${width-0.6}`);
+      animMoon.setAttribute('dur','1.0s');
+      animMoon.setAttribute('repeatCount','indefinite');
+      el.appendChild(animMoon); }
+    }
+    if(centerSkyFocus && WORK!=='Compare'){
+      const anim=document.createElementNS('http://www.w3.org/2000/svg','animate');
+      anim.setAttribute('attributeName','stroke-width');
+      anim.setAttribute('values',`${width-0.7};${width+1.0};${width-0.7}`);
+      anim.setAttribute('dur','1.1s');
+      anim.setAttribute('repeatCount','indefinite');
+      el.appendChild(anim);
+    }
+    svg.appendChild(el);
+  });
+
+  // nodes
+  const receiverSetGraph=new Set((st.baseEdges||[]).map(e=>e.from).filter(x=>!(st.hub||[]).includes(x) && x!==st.center));
+  bodies().forEach(p=>{
+    let fill='var(--node)', stroke='var(--nodeStroke)';
+    if(p===st.center){ fill='#FF2E2E'; stroke='#FFD0D0'; }
+    else if((st.hub||[]).includes(p)){ fill='#E6C55A'; stroke='#FFF0B5'; }
+    else if(receiverSetGraph.has(p)){ fill='#48D8F0'; stroke='#B5F3FC'; }
+    else if(activatedSet.has(p)){ fill='#74D8E7'; stroke='#B5F3FC'; }
+
+    let opacity=!st.focusNode ? 1 : (st.focusNeighbors.has(p)?1:0.16);
+    if(p===st.center) opacity=1;
+
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',pos[p].x); c.setAttribute('cy',pos[p].y); c.setAttribute('r',24);
+    c.setAttribute('fill',fill); c.setAttribute('stroke',stroke); c.setAttribute('stroke-width','3');
+    c.setAttribute('opacity',opacity); c.style.cursor='pointer'; c.dataset.node=p; c.dataset.state=st.name;
+    if(p===st.center) c.setAttribute('filter',`url(#glow-center-${st.name})`);
+    else if(activatedSet.has(p)) c.setAttribute('filter',`url(#glow-sky-${st.name})`);
+    svg.appendChild(c);
+
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',pos[p].x+34); t.setAttribute('y',pos[p].y+7); t.setAttribute('text-anchor','start');
+    t.setAttribute('fill','var(--label)'); t.setAttribute('stroke','var(--labelStroke)'); t.setAttribute('stroke-width','2.4');
+    t.setAttribute('paint-order','stroke'); t.setAttribute('font-size','20'); t.setAttribute('font-weight','900');
+    t.setAttribute('opacity',opacity); t.style.pointerEvents='none'; t.textContent=p;
+    svg.appendChild(t);
+
+    if(st.lockNodes.has(p)){
+      const l=document.createElementNS('http://www.w3.org/2000/svg','text');
+      l.setAttribute('x',pos[p].x-10); l.setAttribute('y',pos[p].y-30); l.setAttribute('text-anchor','middle');
+      l.setAttribute('font-size','26'); l.setAttribute('font-weight','900');
+      l.setAttribute('fill','#FF2E2E'); l.setAttribute('stroke','#240606'); l.setAttribute('stroke-width','2.2'); l.setAttribute('paint-order','stroke');
+      l.setAttribute('opacity',opacity); l.textContent='⛓';
+      svg.appendChild(l);
+    }
+  });
+
+  // center counter on node
+  if(st.center && centerHitCount>0){
+    const x=pos[st.center].x, y=pos[st.center].y;
+    const badge=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    badge.setAttribute('cx',x+20);
+    badge.setAttribute('cy',y-20);
+    badge.setAttribute('r','12');
+    badge.setAttribute('fill','#0F1722');
+    badge.setAttribute('stroke','#7CFF9E');
+    badge.setAttribute('stroke-width','2.2');
+    badge.setAttribute('filter',`url(#glow-sky-${st.name})`);
+    svg.appendChild(badge);
+
+    const num=document.createElementNS('http://www.w3.org/2000/svg','text');
+    num.setAttribute('x',x+20);
+    num.setAttribute('y',y-15);
+    num.setAttribute('text-anchor','middle');
+    num.setAttribute('font-size','13');
+    num.setAttribute('font-weight','900');
+    num.setAttribute('fill','#E8FFF0');
+    num.setAttribute('stroke','#07110A');
+    num.setAttribute('stroke-width','1.2');
+    num.setAttribute('paint-order','stroke');
+    num.textContent=String(centerHitCount);
+    svg.appendChild(num);
+  }
+
+  svg.onclick=(ev)=>{
+    const node=ev.target?.dataset?.node, state=ev.target?.dataset?.state;
+    if(!state) return;
+    const cur=({'1':S1,'C1':C1,'C2':C2})[state];
+    if(!node){ cur.focusNode=null; cur.focusNeighbors=new Set(); drawGraph(cur, graphId(cur)); return; }
+    if(cur.focusNode===node){ cur.focusNode=null; cur.focusNeighbors=new Set(); }
+    else {
+      cur.focusNode=node; cur.focusNeighbors=new Set([node]);
+      cur.edges.forEach(e=>{ if(e.from===node || e.to===node){ cur.focusNeighbors.add(e.from); cur.focusNeighbors.add(e.to); }});
+      for(let i=0;i<cur.strongestChain.length;i++){
+        if(cur.strongestChain[i]===node){
+          if(i>0) cur.focusNeighbors.add(cur.strongestChain[i-1]);
+          if(i<cur.strongestChain.length-1) cur.focusNeighbors.add(cur.strongestChain[i+1]);
+        }
+      }
+    }
+    drawGraph(cur, graphId(cur));
+  };
+}
+
+function tokenColorHtml(p, st){
+  if(!p) return 'none';
+  const receiverSet = new Set((st.baseEdges||[]).map(e=>e.from).filter(x=>!(st.hub||[]).includes(x) && x!==st.center));
+  let color='#F2F5F8';
+  if(p===st.center) color='#FF5454';
+  else if((st.hub||[]).includes(p)) color='#E6C55A';
+  else if(receiverSet.has(p)) color='#48D8F0';
+  return `<span style="font-weight:900;color:${color}">${p}</span>`;
+}
+function colorJoin(arr, st, sep=' / '){
+  if(!arr || !arr.length) return 'none';
+  return arr.map(x=>tokenColorHtml(x, st)).join(sep);
+}
+function updatePanels(st){
+  const suffix = st.name==='1' ? '1' : st.name;
+  const set = (id,val)=>{ const el=document.getElementById(id+suffix); if(el) el.textContent=val; };
+  const setHtml = (id,val)=>{ const el=document.getElementById(id+suffix); if(el) el.innerHTML=val; };
+
+  const reinforced=st.baseEdges.filter(e=>e.w>=2&&e.type==='raw').length;
+  const receiverSet = [...new Set((st.baseEdges||[]).map(e=>e.from).filter(x=>!(st.hub||[]).includes(x) && x!==st.center))];
+  const centerHitsLocal = selectedEdges(st).filter(e=>e.to===st.center).length;
+  const hubHitsLocal = selectedEdges(st).filter(e=>(st.hub||[]).includes(e.to)).length;
+  set('linksBadge',`links: ${st.baseEdges.length}`);
+  set('reinforcedBadge',`reinforced: ${reinforced}`);
+  set('centerBadge',`center: ${st.center||'none'}`);
+  set('chainScoreBadge',`chain score: ${st.chainScore.toFixed(2)}`);
+  set('strongestChain',st.strongestChain.length?st.strongestChain.join(' → '):'none');
+  setHtml('coreBox',`<div class="section"><strong>CENTER</strong><div>${tokenColorHtml(st.center, st)||'none'}</div><div class="muted">center hits: ${centerHitsLocal}</div></div>`);
+  setHtml('condBox',`<div class="section"><strong>HUB / CONDUCTORS</strong><div>${colorJoin(st.hub||[], st)}</div><div class="muted">hub hits: ${hubHitsLocal}</div></div>`);
+  setHtml('shellBox',`<div class="section"><strong>RECEIVERS</strong><div>${colorJoin(receiverSet, st, ', ')}</div></div>`);
+  set('locksBox',st.locks.join(' | ')||'none');
+  setHtml('hubBox', colorJoin(st.hub||[], st));
+  set('concentration',(st.nodeConcentration||[]).join(', ')||'none');
+  set('layers',`L1: ${(st.layer1||[]).join(', ')||'none'} | L2: ${(st.layer2||[]).join(', ')||'none'}`);
+  set('flipReinforced',(st.flipReinforced||[]).join(' | ')||'none');
+  set('flipLocks',(st.flipLocks||[]).join(' | ')||'none');
+  const p5 = p5Nodes(st);
+  if(document.getElementById('showRulers'+suffix)) document.getElementById('showRulers'+suffix).textContent = p5.rulers.join(' ') || 'none';
+  if(document.getElementById('showCorulers'+suffix)) document.getElementById('showCorulers'+suffix).textContent = p5.corulers.join(' ') || 'none';
+  if(document.getElementById('showReceivers'+suffix)) document.getElementById('showReceivers'+suffix).textContent = p5.receivers.join(', ') || 'none';
+  if(document.getElementById('showFilter0'+suffix)) document.getElementById('showFilter0'+suffix).textContent = (st.filter0Rows||[]).join(', ') || 'none';
+  if(document.getElementById('showParser'+suffix)) document.getElementById('showParser'+suffix).textContent = st.baseEdges.map(e=>`${e.from}→${e.to}${e.angle?`(${e.angle}/${e.orb.toFixed(1)})`:''}`).slice(0,18).join(' | ') || 'none';
+
+  const selected=selectedEdges(st);
+  const coreHits=selected.filter(e=>st.core.includes(e.to));
+  const centerHits=selected.filter(e=>e.to===st.center);
+  const chainHits=selected.filter(e=>new Set(st.strongestChain).has(e.to));
+  const activatedNodes=[...new Set(selected.map(e=>e.to).filter(x=>st.core.includes(x)||st.strongestChain.includes(x)||x===st.center))];
+
+  set('coreHitsBadge',`sky → core: ${coreHits.length}`);
+  set('centerHitsBadge',`sky → center: ${centerHits.length}`);
+  set('chainHitsBadge',`sky → chain: ${chainHits.length}`);
+  set('activatedNodes',activatedNodes.length?activatedNodes.join(', '):'none');
+  set('centerHitsBox',centerHits.length?centerHits.map(e=>`${e.from} → ${e.to}${e.orb!=null?` ${e.orb}°`:''}`).join(' | '):'none');
+
+  const rawDiv=document.getElementById('rawLinks'+suffix);
+  if(rawDiv) rawDiv.innerHTML = st.edges.length ? st.edges.map(e=>{
+    const orb=e.orb!=null?` ${e.orb}°`:'';
+    const tag=e.type==='raw'?(e.w>=2?' (2!)':''):(e.type==='decl-contra'?' (decl contra)':' (decl)');
+    return `<div>${e.from} → ${e.to}${tag}${orb}</div>`;
+  }).join('') : 'none';
+
+  const chainPairs=[];
+  for(let i=0;i<st.strongestChain.length-1;i++){
+    const e=st.edges.find(x=>x.from===st.strongestChain[i]&&x.to===st.strongestChain[i+1]);
+    if(e) chainPairs.push(`${e.from} → ${e.to}${e.orb!=null?` ${e.orb}°`:''}${e.type.startsWith('decl')?' decl':''}`);
+  }
+  set('chainOrbsBox',chainPairs.length?chainPairs.join(' | '):'none');
+  set('centerOrbsBox',centerHits.length?centerHits.map(e=>`${e.from} → ${e.to}${e.orb!=null?` ${e.orb}°`:''}`).join(' | '):'none');
+
+  const fast=selected.filter(e=>fastBodies().includes(e.from));
+  const slow=selected.filter(e=>slowBodies().includes(e.from));
+  const moon=selected.filter(e=>e.from==='MO');
+  const tStatus=document.getElementById('triggerStatus'+suffix);
+  if(tStatus){ const ok= moon.length>0 && fast.length>0 && slow.length>0; tStatus.textContent=ok?'Trigger: YES':'Trigger: NO'; tStatus.className=ok?'ok':'warn'; }
+  set('moonBox',moon.length?moon.map(e=>`${e.from} → ${e.to}`).join(' | '):'none');
+  set('fastBox',fast.length?[...new Set(fast.map(e=>`${e.from} → ${e.to}`))].join(' | '):'none');
+  set('slowBox',slow.length?[...new Set(slow.map(e=>`${e.from} → ${e.to}`))].join(' | '):'none');
+
+  if(st.name!=='1'){
+    const pname = document.getElementById(st.name==='C1'?'playerC1':'playerC2')?.value?.trim() || (st.name==='C1'?'Chart 1':'Chart 2');
+    set('summary', `${pname} | preflip center ${st.center||'none'} | hub ${(st.hub||[]).join('/')||'none'} | Filter0 ${st.filter0Rows?.length||0} | chain ${st.chainScore.toFixed(2)} | links ${st.baseEdges.length}`);
+  }
+}
+function runState(st, rawId, declId, statusId){
+  try{
+    resetState(st); st.sky=new Set(bodies());
+    const lists = getProtocolLists(st);
+    if((lists.rulers.length + lists.corulers.length)===0){
+      document.getElementById(statusId).textContent='No rulers defined';
+      const gid = graphId(st);
+      if(gid){ const el=document.getElementById(gid); if(el) el.innerHTML=''; }
+      if(st.name==='1'){
+        ['linksBadge1','reinforcedBadge1','centerBadge1','chainScoreBadge1'].forEach((id,i)=>{
+          const el=document.getElementById(id); if(el) el.textContent = i===2 ? 'center: none' : (i===3 ? 'chain score: 0' : (i===0 ? 'links: 0' : 'reinforced: 0'));
+        });
+        ['strongestChain1','coreBox1','condBox1','shellBox1','locksBox1','showRulers1','showCorulers1','showReceivers1','showFilter01','showParser1','activatedNodes1','centerHitsBox1','rawLinks1'].forEach(id=>{
+          const el=document.getElementById(id); if(el) el.textContent='No rulers defined';
+        });
+      } else {
+        updateCompare();
+      }
+      return;
+    }
+    const a=parseRaw(document.getElementById(rawId).value, st);
+    const b=parseDecl(document.getElementById(declId).value, st);
+    document.getElementById(statusId).textContent=`imported ${a+b}`;
+    if((a+b)===0) document.getElementById(statusId).textContent='parsed 0 links';
+    else document.getElementById(statusId).textContent=`ready ${a+b}`;
+    buildSky(st.name==='1'?'skyBox1':(st.name==='C1'?'skyBoxC1':'skyBoxC2'), st);
+    buildEdges(st); findCenter(st); findStrongestChain(st); buildStructure(st); rerender(st);
+  }catch(err){
+    document.getElementById(statusId).textContent='ERROR: '+(err && err.message ? err.message : 'run failed');
+  }
+}
+
+
+
+function getProtocolLists(st){
+  if(st && st.manualLists) return st.manualLists;
+  const suffix = st.name==='1' ? '1' : st.name;
+  return {
+    rulers: parsePlanetList(document.getElementById('rulers'+suffix)?.value || ''),
+    corulers: parsePlanetList(document.getElementById('corulers'+suffix)?.value || '')
+  };
+}
+function computeFilter0Rows(st){
+  const lists = getProtocolLists(st);
+  const allow = new Set([...(lists.rulers||[]), ...(lists.corulers||[])]);
+  if(!allow.size) return bodies();
+  const rows = [];
+  bodies().forEach(n=>{
+    let ok = false;
+    st.baseEdges.forEach(e=>{
+      if(e.to===n && allow.has(e.from)) ok = true;
+    });
+    if(ok) rows.push(n);
+  });
+  return rows;
+}
+
+function parsePlanetList(text){
+  return String(text||'').split(/[,\s/]+/).map(x=>x.trim().toUpperCase()).filter(x=>x && bodies().includes(x));
+}
+function p5Nodes(st){
+  const lists = getProtocolLists(st);
+  const rulers = lists.rulers;
+  const corulers = lists.corulers;
+  const receivers = [...new Set(st.edges.map(e=>e.to))];
+  const chainNodes = [...new Set(st.strongestChain||[])];
+  return {
+    rulers,
+    corulers,
+    receivers,
+    chainNodes,
+    important: [...new Set([...rulers, ...corulers, ...receivers, ...chainNodes, ...(st.core||[]), st.center].filter(Boolean))]
+  };
+}
+
+function hubFor(st){
+  return [...new Set(st.hub||[])].filter(Boolean);
+}
+function clusterFor(st){
+  return [...new Set([...(st.hub||[]), ...(st.strongestChain||[]), st.center].filter(Boolean))];
+}
+
+
+function autoStrongestSkyChain(st){
+  const edges = selectedEdges(st);
+  const center = st.center;
+  if(!edges || !center) return null;
+
+  let best=null, bestScore=0;
+
+  edges.forEach(e=>{
+    if(e.to===center){
+      const score=2;
+      if(score>bestScore){bestScore=score;best=[e.from,center];}
+    }
+  });
+
+  const hubs = new Set(hubFor(st));
+  edges.forEach(e=>{
+    if(hubs.has(e.to)){
+      const score=1.5;
+      if(score>bestScore){bestScore=score;best=[e.from,e.to,center];}
+    }
+  });
+
+  return best;
+}
+
+function importantSkyHits(st){
+  const hubs = new Set(hubFor(st));
+  return selectedEdges(st).filter(e => hubs.has(e.to));
+}
+function drawCompareLite(){
+  const svg=document.getElementById('compareLiteMap');
+  const notes=document.getElementById('compareLiteNotes');
+  if(!svg || !notes) return;
+  if(!(S1.center && S2.center && (S1.baseEdges?.length||0)>0 && (S2.baseEdges?.length||0)>0)){
+    svg.innerHTML='';
+    notes.textContent='Run both cores first. Compare appears only when both finished states are ready.';
+    return;
+  }
+
+  svg.innerHTML='';
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const marker=document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id','arrow-lite');
+  marker.setAttribute('viewBox','0 0 12 12');
+  marker.setAttribute('refX','11'); marker.setAttribute('refY','6');
+  marker.setAttribute('markerWidth','10'); marker.setAttribute('markerHeight','10');
+  marker.setAttribute('orient','auto-start-reverse');
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d','M 0 0 L 12 6 L 0 12 z'); path.setAttribute('fill','#DDE6EE');
+  marker.appendChild(path); defs.appendChild(marker); svg.appendChild(defs);
+
+  const n1=document.getElementById('player1')?.value?.trim()||'Core 1';
+  const n2=document.getElementById('player2')?.value?.trim()||'Core 2';
+  const activeSky=[...new Set([...S1.sky, ...S2.sky])].filter(x=>x==='MO' || bodies().includes(x));
+  const r1=getProtocolLists(S1), r2=getProtocolLists(S2);
+  const hub1=hubFor(S1), hub2=hubFor(S2);
+  const cluster1=clusterFor(S1), cluster2=clusterFor(S2);
+  const hits1=importantSkyHits(S1), hits2=importantSkyHits(S2);
+  const centerHits1=selectedEdges(S1).filter(e=>e.to===S1.center).length;
+  const centerHits2=selectedEdges(S2).filter(e=>e.to===S2.center).length;
+  const clusterHits1=selectedEdges(S1).filter(e=>cluster1.includes(e.to)).length;
+  const clusterHits2=selectedEdges(S2).filter(e=>cluster2.includes(e.to)).length;
+  const chainSet1=new Set(S1.strongestChain||[]), chainSet2=new Set(S2.strongestChain||[]);
+  const chainHits1=selectedEdges(S1).filter(e=>chainSet1.has(e.to)).length;
+  const chainHits2=selectedEdges(S2).filter(e=>chainSet2.has(e.to)).length;
+
+  const pos={}, skyY=92, dx=62, skyMid=700;
+  activeSky.forEach((p,i)=> pos['S_'+p]={x:skyMid + (i-(activeSky.length-1)/2)*dx, y:skyY});
+  pos['P1_CENTER']={x:260,y:370};
+  pos['P2_CENTER']={x:1140,y:370};
+  function placeHub(side, centerX, hub){
+    const n=hub.length||1;
+    const gap=Math.max(62, Math.min(95, 320/Math.max(1,n-1)));
+    hub.forEach((p,i)=>{
+      const x=centerX + (i-(n-1)/2)*gap;
+      pos[side+i]={x:x, y:510};
+    });
+  }
+  placeHub('P1_H', pos['P1_CENTER'].x, hub1);
+  placeHub('P2_H', pos['P2_CENTER'].x, hub2);
+
+  function addText(x,y,txt,size=22,fill='#D6DEE6',anchor='middle'){
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',x); t.setAttribute('y',y); t.setAttribute('text-anchor',anchor);
+    t.setAttribute('font-size',size); t.setAttribute('font-weight','800');
+    t.setAttribute('fill',fill); t.setAttribute('stroke','#0A1118'); t.setAttribute('stroke-width','2');
+    t.setAttribute('paint-order','stroke'); t.textContent=txt; svg.appendChild(t);
+  }
+  function addTextLines(x,y,lines,size=20,fill='#D6DEE6',anchor='start'){
+    lines.forEach((line,idx)=> addText(x, y + idx*30, line, size, fill, anchor));
+  }
+  function addNode(x,y,label,fill,stroke='#E6EEF7',r=28){
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',r);
+    c.setAttribute('fill',fill); c.setAttribute('stroke',stroke); c.setAttribute('stroke-width','3');
+    svg.appendChild(c); addText(x,y+6,label,18,'#F5F8FB');
+  }
+  function addArrow(x1,y1,x2,y2,color,width=2.3){
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy)||1, ux=dx/L, uy=dy/L;
+    line.setAttribute('x1',x1+ux*26); line.setAttribute('y1',y1+uy*26);
+    line.setAttribute('x2',x2-ux*30); line.setAttribute('y2',y2-uy*30);
+    line.setAttribute('stroke',color); line.setAttribute('stroke-width',width);
+    line.setAttribute('marker-end','url(#arrow-lite)');
+    svg.appendChild(line);
+  }
+  function wrapList(prefix, arr, per=3){
+    const a = arr && arr.length ? arr : ['-'];
+    const lines=[];
+    for(let i=0;i<a.length;i+=per){
+      const chunk=a.slice(i,i+per).join(' ');
+      lines.push(i===0 ? `${prefix}${chunk}` : `   ${chunk}`);
+    }
+    return lines;
+  }
+
+  addText(60,60,n1,30,'#DDE6EE','start');
+  addText(1340,60,n2,30,'#DDE6EE','end');
+  addText(700,42,'SKY',30,'#DDE6EE');
+
+  activeSky.forEach((p,i)=>{
+    let fill = p==='MO' ? '#7CFF9E' : '#9A6CFF';
+    let stroke = p==='MO' ? '#D9FFE3' : '#E0CCFF';
+    addNode(pos['S_'+p].x, pos['S_'+p].y, p, fill, stroke, 26);
+  });
+
+  addTextLines(20,120,[...wrapList('rulers: ',r1.rulers,3), ...wrapList('co-rulers: ',r1.corulers,3)],20,'#D6DEE6','start');
+  addTextLines(20,220,[`center: ${S1.center||'-'} • hits ${centerHits1}`, `hub: ${hub1.join(' / ')||'-'} • hits ${hits1.length}`, ...wrapList('cluster: ',cluster1,3), `cluster hits: ${clusterHits1}`, `chain pressure: ${chainHits1}`],20,'#F0C8C8','start');
+
+  addTextLines(1380,120,[...wrapList('rulers: ',r2.rulers,3), ...wrapList('co-rulers: ',r2.corulers,3)],20,'#D6DEE6','end');
+  addTextLines(1380,220,[`center: ${S2.center||'-'} • hits ${centerHits2}`, `hub: ${hub2.join(' / ')||'-'} • hits ${hits2.length}`, ...wrapList('cluster: ',cluster2,3), `cluster hits: ${clusterHits2}`, `chain pressure: ${chainHits2}`],20,'#F0C8C8','end');
+
+  addNode(pos['P1_CENTER'].x, pos['P1_CENTER'].y, S1.center||'?', '#FF2E2E', '#FFD0D0', 32);
+  hub1.forEach((p,i)=> addNode(pos['P1_H'+i].x, pos['P1_H'+i].y, p, '#E6C55A', '#FFF0B5', 27));
+  hub1.forEach((p,i)=> addArrow(pos['P1_H'+i].x, pos['P1_H'+i].y, pos['P1_CENTER'].x, pos['P1_CENTER'].y, '#D9C16A', 3.4));
+
+  addNode(pos['P2_CENTER'].x, pos['P2_CENTER'].y, S2.center||'?', '#FF2E2E', '#FFD0D0', 32);
+  hub2.forEach((p,i)=> addNode(pos['P2_H'+i].x, pos['P2_H'+i].y, p, '#E6C55A', '#FFF0B5', 27));
+  hub2.forEach((p,i)=> addArrow(pos['P2_H'+i].x, pos['P2_H'+i].y, pos['P2_CENTER'].x, pos['P2_CENTER'].y, '#D9C16A', 3.4));
+
+  hits1.forEach(e=>{
+    const sp=pos['S_'+e.from]; if(!sp) return;
+    let idx=hub1.indexOf(e.to); if(idx<0) return;
+    const target=pos['P1_H'+idx]; if(!target) return;
+    const color=(MODE==='GEO' && e.from==='MO') ? '#7CFF9E' : 'rgba(72,216,240,0.52)';
+    addArrow(sp.x, sp.y, target.x, target.y, color, 3.4);
+  });
+  hits2.forEach(e=>{
+    const sp=pos['S_'+e.from]; if(!sp) return;
+    let idx=hub2.indexOf(e.to); if(idx<0) return;
+    const target=pos['P2_H'+idx]; if(!target) return;
+    const color=(MODE==='GEO' && e.from==='MO') ? '#7CFF9E' : 'rgba(72,216,240,0.52)';
+    addArrow(sp.x, sp.y, target.x, target.y, color, 3.4);
+  });
+
+  notes.innerHTML='Compare shows only: sky → hub, hub → center.';
+  const p1 = document.getElementById('player1')?.value?.trim() || 'Core 1';
+  const p2 = document.getElementById('player2')?.value?.trim() || 'Core 2';
+  const setText=(id, txt)=>{ const el=document.getElementById(id); if(el) el.innerHTML=txt; };
+  setText('cmpCenterPressure', `<b>${p1}</b> → ${centerHits1} | <b>${p2}</b> → ${centerHits2}`);
+  setText('cmpHubPressure', `<b>${p1}</b> → ${hits1.length} | <b>${p2}</b> → ${hits2.length}`);
+  setText('cmpClusterPressure', `<b>${p1}</b> → ${clusterHits1} | <b>${p2}</b> → ${clusterHits2}`);
+  setText('cmpChainPressure', `<b>${p1}</b> → ${chainHits1} | <b>${p2}</b> → ${chainHits2}`);
+  const moon1=[...((S1.moon)||new Set())];
+  const moonLinks=document.getElementById('moonLinks');
+  const moonFast=document.getElementById('moonFast');
+  const moonSlow=document.getElementById('moonSlow');
+  const moonCenter=document.getElementById('moonCenterHit');
+  if(moonLinks) moonLinks.textContent = moon1.length ? moon1.join(' ') : 'none';
+  if(moonFast) moonFast.textContent = moon1.filter(p=>['ME','VE','MA'].includes(p)).join(' ') || 'none';
+  if(moonSlow) moonSlow.textContent = moon1.filter(p=>['JU','SA','UR','NE','PL','CHI','PRO'].includes(p)).join(' ') || 'none';
+  if(moonCenter) moonCenter.textContent = moon1.some(p=>p===S1.center || p===S2.center) ? 'YES ⚡' : 'no';
+}
+
+function updateCompare(){
+  const l1=getProtocolLists(S1), l2=getProtocolLists(S2);
+  const ready1 = (l1.rulers.length+l1.corulers.length)>0 && (S1.baseEdges?.length||0)>0 && !!S1.center;
+  const ready2 = (l2.rulers.length+l2.corulers.length)>0 && (S2.baseEdges?.length||0)>0 && !!S2.center;
+  if(!ready1 || !ready2){
+    ['cmpCenter','cmpCore','cmpChain','cmpEdge'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='Compare waits for Core 1 and Core 2'; });
+    const svg=document.getElementById('compareLiteMap'); if(svg) svg.innerHTML='';
+    const notes=document.getElementById('compareLiteNotes'); if(notes) notes.textContent='Run both cores first. Compare appears only when both finished states are ready.';
+    return;
+  }
+  const selected1=selectedEdges(S1), selected2=selectedEdges(S2);
+  const c1Center=selected1.filter(e=>e.to===S1.center).length, c2Center=selected2.filter(e=>e.to===S2.center).length;
+  const c1Core=selected1.filter(e=>S1.core.includes(e.to)).length, c2Core=selected2.filter(e=>S2.core.includes(e.to)).length;
+  const c1Chain=selected1.filter(e=>new Set(S1.strongestChain).has(e.to)).length, c2Chain=selected2.filter(e=>new Set(S2.strongestChain).has(e.to)).length;
+  const n1=document.getElementById('player1')?.value?.trim()||'Core 1';
+  const n2=document.getElementById('player2')?.value?.trim()||'Core 2';
+  document.getElementById('cmpCenter').textContent=`${n1}: ${S1.center||'none'} | ${n2}: ${S2.center||'none'}`;
+  document.getElementById('cmpCore').textContent=`${n1} hub: ${(S1.hub||[]).join('/')} | ${n2} hub: ${(S2.hub||[]).join('/')}`;
+  document.getElementById('cmpChain').textContent=`${n1}: ${c1Chain} | ${n2}: ${c2Chain}`;
+  let edge='tie';
+  if(c1Center!==c2Center) edge = c1Center>c2Center ? `${n1} by center pressure` : `${n2} by center pressure`;
+  else if(c1Core!==c2Core) edge = c1Core>c2Core ? `${n1} by core pressure` : `${n2} by core pressure`;
+  else if(S1.chainScore!==S2.chainScore) edge = S1.chainScore>S2.chainScore ? `${n1} by chain score` : `${n2} by chain score`;
+  document.getElementById('cmpEdge').textContent=edge;
+  drawCompareLite();
+}
+function setMode(mode){
+  MODE=mode;
+  document.getElementById('modeHelio').classList.toggle('active', MODE==='HELIO');
+  document.getElementById('modeGeo').classList.toggle('active', MODE==='GEO');
+  [S1,S2,C1,C2].forEach(resetState);
+S1.sky=new Set(['MO', ...bodies().filter(x=>x!=='MO')]);
+S2.sky=new Set(['MO', ...bodies().filter(x=>x!=='MO')]);
+S1.moon=new Set();
+S2.moon=new Set();
+  rebuildAllSky();
+  ['status1','status2','statusC1','statusC2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent='ready'; });
+  ['graph1','graph2','graphC1','graphC2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=''; });
+}
+function setWork(work){
+  WORK=work;
+  document.getElementById('workSingle').classList.toggle('active', WORK==='Single');
+  document.getElementById('workCompare').classList.toggle('active', WORK==='Compare');
+  document.getElementById('singleView').classList.toggle('hidden', WORK!=='Single');
+  document.getElementById('compareView').classList.toggle('hidden', WORK!=='Compare');
+}
+
+document.getElementById('modeHelio').onclick=()=>setMode('HELIO');
+document.getElementById('modeGeo').onclick=()=>setMode('GEO');
+document.getElementById('workSingle').onclick=()=>setWork('Single');
+document.getElementById('workCompare').onclick=()=>setWork('Compare');
+
+document.getElementById('import1').onclick=()=>{ runState(S1,'inputRaw1','inputDecl1','status1'); safeUpdateCompare(); };
+document.getElementById('run1').onclick=()=>{ runState(S1,'inputRaw1','inputDecl1','status1'); safeUpdateCompare(); };
+document.getElementById('import2').onclick=()=>{ runState(S2,'inputRaw2','inputDecl2','status2'); safeUpdateCompare(); };
+document.getElementById('run2').onclick=()=>{ runState(S2,'inputRaw2','inputDecl2','status2'); safeUpdateCompare(); };
+document.getElementById('player1')?.addEventListener('input', safeUpdateCompare);
+document.getElementById('player2')?.addEventListener('input', safeUpdateCompare);
+
+document.getElementById('importC1').onclick=()=>{ runState(C1,'inputRawC1','inputDeclC1','statusC1'); updateCompare(); };
+document.getElementById('importC2').onclick=()=>{ runState(C2,'inputRawC2','inputDeclC2','statusC2'); updateCompare(); };
+document.getElementById('runC1').onclick=()=>{ runState(C1,'inputRawC1','inputDeclC1','statusC1'); updateCompare(); };
+document.getElementById('runC2').onclick=()=>{ runState(C2,'inputRawC2','inputDeclC2','statusC2'); updateCompare(); };
+
+function skyAll(id){
+ const st=id==='1'?S1:(id==='2'?S2:(id==='C1'?C1:C2));
+ st.sky=new Set(bodies());
+ rebuildAllSky();
+ rerender(st);
+ if(WORK==='Compare') updateCompare();
+}
+function skyNone(id){
+ const st=id==='1'?S1:(id==='2'?S2:(id==='C1'?C1:C2));
+ st.sky=new Set();
+ rebuildAllSky();
+ rerender(st);
+ if(WORK==='Compare') updateCompare();
+}
+
+
+function forceGraphStructureRight(){
+  ['1','2'].forEach(function(n){
+    const graph = document.getElementById('graph'+n);
+    const structTitle = Array.from(document.querySelectorAll('h3')).find(h => h.textContent.trim() === `Chart ${n} — Structure`);
+    if(!graph || !structTitle) return;
+    const graphPanel = graph.closest('.panel');
+    const structPanel = structTitle.closest('.panel');
+    if(!graphPanel || !structPanel || graphPanel === structPanel) return;
+
+    let wrap = graphPanel.parentElement;
+    if(!wrap || !wrap.classList.contains('graph-struct')){
+      wrap = document.createElement('div');
+      wrap.className = 'graph-struct';
+      graphPanel.parentNode.insertBefore(wrap, graphPanel);
+      wrap.appendChild(graphPanel);
+    }
+
+    if(structPanel.parentElement !== wrap){
+      wrap.appendChild(structPanel);
+    }
+
+    graphPanel.style.minWidth = '0';
+    structPanel.style.minWidth = '0';
+    structPanel.style.alignSelf = 'start';
+  });
+}
+window.addEventListener('load', forceGraphStructureRight);
+setTimeout(forceGraphStructureRight, 300);
+setTimeout(forceGraphStructureRight, 1200);
+
+
+
+/* ===== P5 vNext bridge: safe UI/storage layer above existing R4 core ===== */
+const VNEXT = {
+  sky:null,
+  p1:{helio:null, geo:null},
+  p2:{helio:null, geo:null}
+};
+
+function setStatus(id, txt){ const el=document.getElementById(id); if(el) el.textContent=txt; }
+function parsePlanetListForMode(text, mode){
+  const allowed = mode==='GEO' ? BASE_GEO : BASE_HELIO;
+  return String(text||'').split(/[,\s/]+/).map(x=>x.trim().toUpperCase()).filter(x=>x && allowed.includes(x));
+}
+function withMode(mode, fn){
+  const prev = MODE;
+  MODE = mode;
+  try { return fn(); } finally { MODE = prev; }
+}
+function makeManualState(mode, raw, rulersText, corulersText){
+  return withMode(mode, ()=>{
+    const st = makeState('1');
+    resetState(st);
+    st.sky = new Set(bodies());
+    st.moon = new Set();
+    st.manualLists = {
+      rulers: parsePlanetListForMode(rulersText, mode),
+      corulers: parsePlanetListForMode(corulersText, mode)
+    };
+    parseRaw(raw||'', st);
+    buildEdges(st);
+    findCenter(st);
+    findStrongestChain(st);
+    buildStructure(st);
+    return {
+      mode,
+      state: st,
+      center: st.center || null,
+      chain: Array.isArray(st.strongestChain) ? st.strongestChain.slice() : [],
+      receivers: [...new Set((st.baseEdges||[]).map(e=>e.from).filter(x => !(st.hub||[]).includes(x) && x!==st.center))],
+      rulers: st.manualLists.rulers.slice(),
+      corulers: st.manualLists.corulers.slice()
+    };
+  });
+}
+function formatChain(result){
+  if(!result || !result.chain || !result.chain.length) return 'none';
+  return result.chain.map(p => p===result.center ? `◎${p}` : p).join(' → ');
+}
+function formatReceivers(result){
+  const arr = result && result.receivers && result.receivers.length ? result.receivers : [];
+  return arr.length ? arr.map(p => `◉${p}`).join('   ') : 'none';
+}
+function renderSummary(elId, title, result){
+  const el=document.getElementById(elId); if(!el) return;
+  if(!result){
+    el.innerHTML = `<div class="summary-title">${title}</div><div class="summary-chain">none</div><div class="summary-receivers">Receivers: none</div><div class="summary-meta">Rulers: none · Co-rulers: none</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="summary-title">${title}</div>
+    <div class="summary-chain">${formatChain(result)}</div>
+    <div class="summary-receivers">Receivers: ${formatReceivers(result)}</div>
+    <div class="summary-meta">Rulers: ${result.rulers?.join(' ')||'none'} · Co-rulers: ${result.corulers?.join(' ')||'none'}</div>`;
+}
+function getCheckedMoonVNext(){
+  return [...document.querySelectorAll('#moonTriggerVNext input[type="checkbox"]:checked')].map(x=>x.value);
+}
+
+function buildTriggerGrid(boxId, kind){
+  const box=document.getElementById(boxId); if(!box) return;
+  box.innerHTML='';
+  const planets = kind==='planet'
+    ? ['MO','SU','ME','VE','MA','JU','SA','UR','NE','PL','CHI','PRO']
+    : ['SU','ME','VE','MA','JU','SA','UR','NE','PL','CHI','PRO'];
+  planets.forEach(p=>{
+    const lab=document.createElement('label');
+    lab.className='trigger-chip';
+    lab.dataset.kind=kind;
+    lab.innerHTML=`<input type="checkbox" value="${p}"><span>${p}</span>`;
+    const inp=lab.querySelector('input');
+    inp.addEventListener('change', ()=>{ lab.classList.toggle(kind==='moon'?'active-moon':'active-planet', inp.checked); });
+    box.appendChild(lab);
+  });
+}
+function setTriggerGroup(boxId, checked, kind){
+  const box=document.getElementById(boxId); if(!box) return;
+  box.querySelectorAll('input[type="checkbox"]').forEach(inp=>{ inp.checked=checked; inp.dispatchEvent(new Event('change')); });
+  runCompareVNext();
+}
+function getCheckedFromBox(boxId){
+  return [...document.querySelectorAll(`#${boxId} input[type="checkbox"]:checked`)].map(x=>x.value);
+}
+function getCheckedMoonVNext(){ return getCheckedFromBox('moonTriggerVNext'); }
+function getCheckedPlanetsVNext(){ return getCheckedFromBox('planetHitsVNext'); }
+function asTags(arr, cls){
+  if(!arr || !arr.length) return '<span class="badge-no">NONE</span>';
+  return `<span class="match-tags">${arr.map(v=>`<span class="match-tag ${cls}">${v}</span>`).join('')}</span>`;
+}
+function getCenterConductors(result){
+  if(!result || !Array.isArray(result.chain) || !result.center) return [];
+  const idx=result.chain.indexOf(result.center);
+  if(idx===-1) return [];
+  const out=[];
+  if(idx>0) out.push(result.chain[idx-1]);
+  if(idx<result.chain.length-1) out.push(result.chain[idx+1]);
+  return [...new Set(out.filter(Boolean))];
+}
+function renderColoredChain(result){
+  if(!result || !(result.chain||[]).length) return 'none';
+  const recvSet=new Set(result.receivers||[]);
+  return (result.chain||[]).map(p=>{
+    let cls='pl-planet';
+    if(p===result.center) cls='pl-center';
+    else if(recvSet.has(p)) cls='pl-recv';
+    return `<span class="${cls}">${p===result.center?('◎'+p):p}</span>`;
+  }).join(' <span class="pl-planet">→</span> ');
+}
+function getSkyWindowVNext(){
+  const chain=(VNEXT.sky && Array.isArray(VNEXT.sky.chain)) ? VNEXT.sky.chain : [];
+  if(!chain.length) return [];
+  return chain.slice(-5);
+}
+
+function renderSkyOverlay(result, skyResult){
+  if(!skyResult || !(skyResult.chain||[]).length) return '';
+  const skyChain = skyResult.chain || [];
+  const entry = skyChain[0] || null;
+  const center = skyChain[skyChain.length-1] || null;
+  const conductors = skyChain.slice(1, skyChain.length-1);
+  const chain = result.chain || [];
+  return `<div class="sky-overlay">` + chain.map(p=>{
+      let cls=['sky-item'];
+      if(p===entry) cls.push('sky-entry');
+      else if(p===center) cls.push('sky-center');
+      else if(conductors.includes(p)) cls.push('sky-conductor');
+      return `<span class="${cls.join(' ')}">${p}</span>`;
+  }).join(' ') + `</div>`;
+}
+
+function renderSummary(elId,label,result){
+  const el=document.getElementById(elId); if(!el) return;
+  if(!result){
+    el.innerHTML=`<div class="summary-title">${label} SUMMARY</div><div class="summary-chain">none</div><div class="summary-receivers">Receivers: none</div><div class="summary-meta">Rulers: none · Co-rulers: none</div>`;
+    return;
+  }
+  el.innerHTML=`<div class="summary-title">${label} SUMMARY</div><div class="summary-chain chain-tagline">${renderColoredChain(result)}</div><div class="summary-receivers">Receivers: ${asTags(result.receivers||[],'recv')}</div><div class="summary-meta">Center: <span class="pl-center">${result.center||'—'}</span> · Rulers: ${(result.rulers||[]).join(' ')||'none'} · Co-rulers: ${(result.corulers||[]).join(' ')||'none'}</div>`;
+}
+function hitInfo(triggerSet, result){
+  if(!result) return {receivers:[], chain:[], center:false, path:'BROKEN_PATH', all:[]};
+  const receivers=(result.receivers||[]).filter(p=>triggerSet.has(p));
+  const chainNodes=(result.chain||[]).filter(p=>p!==result.center && !(result.receivers||[]).includes(p));
+  const chainHits=chainNodes.filter(p=>triggerSet.has(p));
+  const centerHit = triggerSet.has(result.center);
+  let path='BROKEN_PATH';
+  if(centerHit) path='DIRECT_CENTER';
+  else if(chainHits.length) path='CHAIN_PATH';
+  else if(receivers.length) path='RECEIVER_PATH';
+  return {receivers, chain:chainHits, center:centerHit, path, all:[...(centerHit?[result.center]:[]),...receivers,...chainHits]};
+}
+function skyInfo(skyResult, result){
+  if(!skyResult || !result) return {center:false, chain:[], receivers:[], support:'NO', centerByReceiver:false, skyCenterHit:false, skyCenterChain:false, skyCenterReceivers:false, conductors:[]};
+  const skyReceivers=new Set(skyResult.receivers||[]);
+  const skyChain=new Set(skyResult.chain||[]);
+  const playerReceivers = new Set(result.receivers||[]);
+  const playerChain = new Set(result.chain||[]);
+  const center = skyResult.center===result.center;
+  const centerByReceiver = skyReceivers.has(result.center);
+  const skyCenterReceivers = playerReceivers.has(skyResult.center);
+  const skyCenterChain = playerChain.has(skyResult.center) && !skyCenterReceivers && skyResult.center!==result.center;
+  const skyCenterHit = center || skyCenterReceivers || skyCenterChain;
+  const centerConductors = getCenterConductors(skyResult);
+  const conductors = centerConductors.filter(p => playerChain.has(p) || playerReceivers.has(p) || p===result.center);
+  const chain=(result.chain||[]).filter(p=>p!==result.center && skyChain.has(p) && !(result.receivers||[]).includes(p));
+  const receivers=(result.receivers||[]).filter(p=>skyReceivers.has(p) || p===skyResult.center);
+  let support='NO';
+  if(center && receivers.length) support='CENTER+RECEIVERS';
+  else if(center || centerByReceiver) support='CENTER';
+  else if(skyCenterHit && conductors.length) support='SKY-CENTER';
+  else if(receivers.length && chain.length) support='CHAIN+RECEIVERS';
+  else if(receivers.length) support='RECEIVERS';
+  else if(chain.length) support='CHAIN';
+  return {center, centerByReceiver, chain, receivers, support, skyCenterHit, skyCenterChain, skyCenterReceivers, conductors};
+}
+function unionHits(a,b){ return [...new Set([...(a?.all||[]), ...(b?.all||[])])]; }
+function countTriggerHits(info){ return (info.center?1:0) + (info.receivers?.length||0) + (info.chain?.length||0); }
+function classifyMatchType(sky, summary){
+  if(summary.centerLock && (sky.receivers?.length||0) >= 3) return 'RECEIVER FLOW';
+  if(summary.centerLock && (sky.chain?.length||0) >= 4) return 'CHAIN FLOW';
+  if(summary.centerLock) return 'CENTER LOCK';
+  if((sky.receivers?.length||0) >= 2) return 'RECEIVER EDGE';
+  if((sky.chain?.length||0) >= 3) return 'CHAIN EDGE';
+  return 'WEAK';
+}
+function calcLayerSummary(sky, moon, planets){
+  const centerLock = !!(sky.center || sky.centerByReceiver);
+  const receiverCount = sky.receivers?.length || 0;
+  const chainCount = sky.chain?.length || 0;
+  const triggerCount = countTriggerHits(moon) + countTriggerHits(planets);
+  const centerBonus = (sky.center ? 6 : 0) + (sky.centerByReceiver ? 4 : 0);
+  const skyCenterBonus = (sky.skyCenterHit ? 3 : 0) + Math.min((sky.conductors?.length||0), 2);
+  const flowScore = centerBonus + skyCenterBonus + receiverCount * 2 + chainCount + (triggerCount ? 1 : 0);
+  let label='NONE', cls='result-weak';
+  if((centerLock && receiverCount) || (sky.skyCenterHit && (sky.conductors?.length||0))){ label='MATCH'; cls='result-strong'; }
+  else if(centerLock || receiverCount || chainCount || triggerCount || sky.skyCenterHit || (sky.conductors?.length||0)){ label='PARTIAL'; cls='result-medium'; }
+  const recycle = centerLock && receiverCount;
+  const matchType = classifyMatchType(sky, {centerLock});
+  return {label, cls, centerLock, recycle, receiverCount, chainCount, triggerCount, centerBonus, skyCenterBonus, flowScore, matchType};
+}
+function overallSummary(h, g){
+  const score = s => s.label==='MATCH' ? 2 : (s.label==='PARTIAL' ? 1 : 0);
+  const hs=score(h), gs=score(g);
+  let txt='WEAK', cls='result-weak';
+  if(hs===2 && gs===2){ txt='BOTH ♻️'; cls='result-strong'; }
+  else if(gs>hs){ txt='GEO LEADS'; cls=gs===2?'result-strong':'result-medium'; }
+  else if(hs>gs){ txt='HELIO LEADS'; cls=hs===2?'result-strong':'result-medium'; }
+  else if(hs===gs && hs>0){ txt='BALANCED'; cls='result-medium'; }
+  return {txt, cls};
+}
+function renderCompareCard(elId, title, player, opponent){
+  const el=document.getElementById(elId); if(!el) return;
+  if(!player.helio && !player.geo){
+    el.innerHTML=`<div class="compare-player-title"><div class="name">${title}</div><span class="badge-no">NO DATA</span></div>`;
+    return;
+  }
+  const moonSet = new Set(getCheckedMoonVNext());
+  const planetSet = new Set(getCheckedPlanetsVNext());
+  const helioMoon = hitInfo(moonSet, player.helio);
+  const geoMoon   = hitInfo(moonSet, player.geo);
+  const helioPlan = hitInfo(planetSet, player.helio);
+  const geoPlan   = hitInfo(planetSet, player.geo);
+  const helioSky  = skyInfo(VNEXT.sky, player.helio);
+  const geoSky    = skyInfo(VNEXT.sky, player.geo);
+  function layerCard(name, result, sky, moon, planets){
+    const sum = calcLayerSummary(sky, moon, planets);
+    const triggerHits = unionHits(moon, planets);
+    return `<div class="compare-layer">
+      <h4>${name}</h4>
+      <div class="match-row"><div class="match-label">Structure</div><div class="match-value chain-tagline">${renderSkyOverlay(result)}${renderColoredChain(result)}</div></div>
+      <div class="match-row"><div class="match-label">Center match</div><div class="match-value">${sky.center ? asTags([result.center],'center') : '<span class="badge-no">NO</span>'}</div></div>
+      <div class="match-row"><div class="match-label">Receivers match</div><div class="match-value">${asTags(sky.receivers,'recv')}</div></div>
+      <div class="match-row"><div class="match-label">Chain overlap</div><div class="match-value">${asTags(sky.chain,'chain')}</div></div>
+      <div class="match-row"><div class="match-label">Center lock</div><div class="match-value">${sum.centerLock ? '<span class="lock-badge">YES 🔒</span>' : '<span class="badge-no">NO</span>'}${sum.centerBonus? ' <span class="type-chip">+'+sum.centerBonus+' center</span>' : ''}</div></div>
+      <div class="match-row"><div class="match-label">Trigger hits</div><div class="match-value">${asTags(triggerHits, 'planet')}</div></div>
+      <div class="match-row"><div class="match-label">Result</div><div class="match-value"><span class="${sum.cls}">${sum.label}</span>${sum.recycle?' <span class="recycle">♻️</span>':''}</div></div>
+    </div>`;
+  }
+  const helioSum=calcLayerSummary(helioSky, helioMoon, helioPlan);
+  const geoSum=calcLayerSummary(geoSky, geoMoon, geoPlan);
+  const overall=overallSummary(helioSum, geoSum);
+  const myEdge=(geoSum.flowScore + Math.round(helioSum.flowScore*0.4));
+  const oppHelio = opponent ? calcLayerSummary(skyInfo(VNEXT.sky, opponent.helio), hitInfo(moonSet, opponent.helio), hitInfo(planetSet, opponent.helio)) : {flowScore:0};
+  const oppGeo = opponent ? calcLayerSummary(skyInfo(VNEXT.sky, opponent.geo), hitInfo(moonSet, opponent.geo), hitInfo(planetSet, opponent.geo)) : {flowScore:0};
+  const oppEdge=(oppGeo.flowScore + Math.round(oppHelio.flowScore*0.4));
+  const edgeDiff=myEdge-oppEdge;
+  const edgeCls=edgeDiff>0?'edge-pos':(edgeDiff<0?'edge-neg':'edge-neutral');
+  el.innerHTML = `<div class="compare-player-title"><div class="name">${title}</div><span class="badge-match">COMPARE</span></div>
+  <div class="compare-summary">
+    <div class="summary-pill"><div class="k">HELIO MATCH</div><div class="v ${helioSum.cls}">${helioSum.label}${helioSum.recycle?' ♻️':''}</div></div>
+    <div class="summary-pill"><div class="k">GEO MATCH</div><div class="v ${geoSum.cls}">${geoSum.label}${geoSum.recycle?' ♻️':''}</div></div>
+    <div class="summary-pill"><div class="k">OVERALL</div><div class="v ${overall.cls}">${overall.txt}</div></div>
+    <div class="summary-pill"><div class="k">FLOW EDGE</div><div class="v ${edgeCls}">${edgeDiff>0?'+':''}${edgeDiff}</div></div>
+    <div class="summary-pill"><div class="k">RECEIVER COUNT</div><div class="v ${geoSum.cls}">${geoSum.receiverCount}</div></div>
+    <div class="summary-pill"><div class="k">MATCH TYPE</div><div class="v ${geoSum.cls}"><span class="type-chip">${geoSum.matchType}</span></div></div>
+  </div>
+  <div class="compare-layer-grid">
+    ${layerCard('HELIO', player.helio, helioSky, helioMoon, helioPlan)}
+    ${layerCard('GEO', player.geo, geoSky, geoMoon, geoPlan)}
+  </div>`;
+}
+function runSkyVNext(){
+  try{
+    setStatus('skyStatusVNext','running...');
+    VNEXT.sky = makeManualState('GEO', document.getElementById('skyRawVNext').value, document.getElementById('skyRulers').value, document.getElementById('skyCorulers').value);
+    renderSummary('skySummaryVNext','SKY', VNEXT.sky);
+    setStatus('skyStatusVNext','ready');
+  }catch(err){ setStatus('skyStatusVNext', 'ERROR'); console.error(err); }
+}
+function runPlayerVNext(idx){
+  try{
+    const prefix = idx===1 ? 'p1' : 'p2';
+    setStatus(prefix+'StatusVNext','running...');
+    const rulers = document.getElementById(prefix+'RulersVNext').value;
+    const corulers = document.getElementById(prefix+'CorulersVNext').value;
+    VNEXT[prefix] = {
+      helio: makeManualState('HELIO', document.getElementById(prefix+'HelioRawVNext').value, rulers, corulers),
+      geo: makeManualState('GEO', document.getElementById(prefix+'GeoRawVNext').value, rulers, corulers)
+    };
+    renderSummary(prefix+'HelioSummaryVNext','HELIO', VNEXT[prefix].helio);
+    renderSummary(prefix+'GeoSummaryVNext','GEO', VNEXT[prefix].geo);
+    setStatus(prefix+'StatusVNext','ready');
+  }catch(err){ setStatus(prefix+'StatusVNext','ERROR'); console.error(err); }
+}
+function runCompareVNext(){
+  try{
+    setStatus('compareStatusVNext','running...');
+    const n1=document.getElementById('p1NameVNext').value || 'PLAYER 1';
+    const n2=document.getElementById('p2NameVNext').value || 'PLAYER 2';
+    renderCompareCard('compareP1VNext', n1, VNEXT.p1 || {helio:null,geo:null}, VNEXT.p2 || {helio:null,geo:null});
+    renderCompareCard('compareP2VNext', n2, VNEXT.p2 || {helio:null,geo:null}, VNEXT.p1 || {helio:null,geo:null});
+    setStatus('compareStatusVNext','ready');
+  }catch(err){ setStatus('compareStatusVNext','ERROR'); console.error(err); }
+}
+function runAllVNext(){ runSkyVNext(); runPlayerVNext(1); runPlayerVNext(2); runCompareVNext(); }
+
+document.getElementById('runSkyVNext')?.addEventListener('click', runSkyVNext);
+document.getElementById('runP1VNext')?.addEventListener('click', ()=>runPlayerVNext(1));
+document.getElementById('runP2VNext')?.addEventListener('click', ()=>runPlayerVNext(2));
+document.getElementById('runCompareVNext')?.addEventListener('click', runCompareVNext);
+document.getElementById('runAllVNext')?.addEventListener('click', runAllVNext);
+document.getElementById('moonTriggerVNext')?.addEventListener('change', runCompareVNext);
+document.getElementById('planetHitsVNext')?.addEventListener('change', runCompareVNext);
+document.getElementById('moonAllVNext')?.addEventListener('click', ()=>setTriggerGroup('moonTriggerVNext', true, 'moon'));
+document.getElementById('moonNoneVNext')?.addEventListener('click', ()=>setTriggerGroup('moonTriggerVNext', false, 'moon'));
+document.getElementById('planetAllVNext')?.addEventListener('click', ()=>setTriggerGroup('planetHitsVNext', true, 'planet'));
+document.getElementById('planetNoneVNext')?.addEventListener('click', ()=>setTriggerGroup('planetHitsVNext', false, 'planet'));
+buildTriggerGrid('moonTriggerVNext','moon');
+buildTriggerGrid('planetHitsVNext','planet');
+renderSummary('p1HelioSummaryVNext','HELIO', null);
+renderSummary('p1GeoSummaryVNext','GEO', null);
+renderSummary('p2HelioSummaryVNext','HELIO', null);
+renderSummary('p2GeoSummaryVNext','GEO', null);
+renderCompareCard('compareP1VNext','PLAYER 1',{helio:null,geo:null});
+renderCompareCard('compareP2VNext','PLAYER 2',{helio:null,geo:null});
+
+</script>
+</body>
+</html>
